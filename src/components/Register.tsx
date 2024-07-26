@@ -49,7 +49,8 @@ const Register: React.FC = () => {
             name: data.name,
             email: data.email,
             pass: data.password,
-            profilePic: "default_profile.png"
+            profilePic: "default_profile.png",
+            userRole: "Core"
         }, {withCredentials: true})
         .then((res)=>{
             if(res.data.name){
