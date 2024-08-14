@@ -62,6 +62,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
             exposes: {
               "./Login": "./src/components/Login", // Ejemplo, aqui se exponen los componentes
               "./Register": "./src/components/Register",
+              "./GoogleAuth": "./src/components/GoogleAuth",
               "./Activate": "./src/components/Activate",
               "./UserAccount": "./src/components/UserAccount"
             },

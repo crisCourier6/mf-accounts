@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Box, TextField, Backdrop, Dialog, DialogContent, DialogContentText, DialogActions} from '@mui/material';
+import { Button, Box, TextField, Backdrop, Dialog, DialogContent, DialogContentText, DialogActions, InputAdornment, IconButton, Alert, Snackbar} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form"
 import axios from 'axios';
@@ -14,12 +14,12 @@ type FormValues = {
     profilePic: string
 }
 
-
-
 const Register: React.FC = () => {
     const navigate = useNavigate()
     const [file, setFile] = useState(null)
     const form = useForm<FormValues>({
+        mode: "onBlur",
+        reValidateMode: "onBlur",
         defaultValues: {
             name: "",
             email: "",
@@ -28,16 +28,11 @@ const Register: React.FC = () => {
             profilePic: ""
 
         }
-    })
-    useEffect(()=>{
-        if(window.localStorage.getItem("token")){
-            return navigate("/home")
-        }
-        
-    },[navigate])      
-    const [showRegisterSuccess, setShowRegisterSuccess] = useState(false);
-    const [showPasswordHint, setShowPasswordHint] = useState(false);
-
+    })    
+    const [showRegisterSuccess, setShowRegisterSuccess] = useState(false)
+    const [showPasswordHint, setShowPasswordHint] = useState(false)
+    const [showError, setShowError] = useState(false);
+    const [errorText, setErrorText] = useState("")
     const url = "http://192.168.100.6:8080/auth/signup"
 
     const { register, handleSubmit, formState, control, getValues, watch } = form
@@ -54,8 +49,21 @@ const Register: React.FC = () => {
         }, {withCredentials: true})
         .then((res)=>{
             if(res.data.name){
+                console.log("oh")
                 return handleSuccessDialog()    
-            }                    
+            }
+            console.log("huh")                    
+        })
+        .catch((error) => {
+            console.log(error.response)
+            setShowError(true)
+            if (error.response.status == 401){
+                setErrorText("El email ya está asociado a una cuenta")
+            }
+
+            else if (error.response.status == 403){
+                setErrorText("Cuenta no activada")
+            }
         })
     }
 
@@ -80,7 +88,8 @@ const Register: React.FC = () => {
             justifyContent: "center",
             flexDirection: "column",
             py: 2,
-            gap: 5
+            gap: 2,
+            width:"100%",
         }}     
         >
             <TextField 
@@ -106,7 +115,7 @@ const Register: React.FC = () => {
             <TextField 
                 id="password" 
                 label="Contraseña" 
-                type="password" 
+                type='password'
                 variant="standard" 
                 {...register("password", {required: "Ingresar contraseña", 
                                             minLength: {
@@ -114,7 +123,7 @@ const Register: React.FC = () => {
                                                 message: "Mínimo 8 caractéres"
                                             },
                                             pattern: {
-                                                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+                                                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/,
                                                 message: "Contraseña inválida"
                                             }
 
@@ -126,7 +135,7 @@ const Register: React.FC = () => {
             <TextField 
                 id="confirmPassword" 
                 label="Repetir contraseña" 
-                type="password" 
+                type='password'
                 variant="standard" 
                 {...register("confirmPassword", {required: "Repetir contraseña",
                                                 validate: () => watch("password")!=watch("confirmPassword")?"Contraseñas no coinciden": true
@@ -157,6 +166,20 @@ const Register: React.FC = () => {
                         </Button>
                     </DialogActions>
                 </Dialog>
+            </Backdrop>
+            <Backdrop open={showError} onClick={()=>setShowError(false)} sx={{zIndex: 100, height:"100vh", width: "100vw"}}>
+                
+                    <Alert 
+                    severity="error" 
+                    action={
+                        <Button color="inherit" size="small" onClick={()=>setShowError(false)}>
+                          OK
+                        </Button>
+                    }
+                    sx={{display: showError?"flex":"none",
+                        justifyContent: 'center',
+                        alignItems: 'center',}} >{errorText}</Alert>
+                
             </Backdrop>
         
         {/* <DevTool control = {control}/> */}

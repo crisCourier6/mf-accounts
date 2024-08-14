@@ -10,8 +10,8 @@ export interface UserFull {
     profilePic?:string
     typeExternal?:string
     externalId?:string
-    lastLogin?:Date
-    createdAt?:Date
+    lastLogin?:string
+    createdAt?:string
     updatedAt?:Date
     roles?:string[]
 }

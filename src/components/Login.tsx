@@ -1,9 +1,11 @@
-import React from "react";
-import { Button, Box, TextField, Alert} from '@mui/material';
+import React, { useEffect } from "react";
+import { Button, Box, TextField, Alert, InputAdornment, IconButton} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form"
 import axios from 'axios';
 import { useState } from 'react';
+import Visibility from "@mui/icons-material/Visibility"
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 // import { DevTool } from '@hookform/devtools';
 
 type FormValues = {
@@ -16,6 +18,8 @@ type FormValues = {
 const Login: React.FC = () => {
     const navigate = useNavigate()
     const form = useForm<FormValues>({
+        mode: "onBlur",
+        reValidateMode: "onBlur",
         defaultValues: {
             email: "",
             password: ""
@@ -24,9 +28,9 @@ const Login: React.FC = () => {
     const [showError, setShowError] = useState(false);
     const [errorText, setErrorText] = useState("")
     const url = "http://192.168.100.6:8080/auth/login"
-
     const { register, handleSubmit, formState, control } = form
     const {errors} = formState
+    const [showPass, setShowPass] = useState(false)
 
     const onSubmit = (data: FormValues) => {
         console.log(data)
@@ -67,9 +71,11 @@ const Login: React.FC = () => {
             pb: 10,
             display: "flex",
             justifyContent: "center",
+            alignItems: "center",
             flexDirection: "column",
             py: 2,
-            gap: 5
+            gap: 5,
+            width:"100%"
         }}     
         >
        
@@ -81,19 +87,34 @@ const Login: React.FC = () => {
                 {...register("email", {required: "Ingresar email"})}
                 error={!!errors.email}
                 helperText = {errors.email?.message}
+                fullWidth
             />
 
             <TextField 
                 id="password" 
                 label="Contraseña" 
-                type="password" 
+                type={showPass ? 'text' : 'password'}
                 variant="standard" 
                 {...register("password", {required: "Ingresar contraseña"})}
                 error={!!errors.password}
                 helperText = {errors.password?.message}
+                InputProps={{
+                    endAdornment: (
+                        <InputAdornment position="end">
+                        <IconButton
+                            edge="end"
+                            onClick={()=>setShowPass(!showPass)}
+                            aria-label="toggle password visibility"
+                        >
+                            {showPass? <Visibility /> : <VisibilityOff />}
+                        </IconButton>
+                        </InputAdornment>
+                    ),
+                }}
+                fullWidth
             />
 
-            <Button type="submit" variant="contained" > Iniciar sesión</Button>
+            <Button type="submit" variant="contained" sx={{width: "100%"}} > Iniciar sesión</Button>
             
             <Alert severity="error" sx={{display: showError?null:"none"}} >{errorText}</Alert>
         
