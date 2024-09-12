@@ -20,15 +20,29 @@ type GoogleUser = {
 
 const GoogleAuth: React.FC = () => {
     const navigate = useNavigate()
+    const [tokens, setTokens] = useState<any>(null)
     const [user, setUser] = useState<any>(null)
     const [profile, setProfile] = useState<any>(null)
-     const url = "http://192.168.100.6:8080/auth/login/google"
+    const tokensURL = "http://192.168.100.6:8080/auth/login/tokens"
+    const url = "http://192.168.100.6:8080/auth/login/google"
 
     const login = useGoogleLogin({
-        onSuccess: (codeResponse) => {
-            setUser(codeResponse)
+        onSuccess: async (codeResponse) => {
+            try{
+                const response = await axios.post(tokensURL, {
+                    code: codeResponse.code
+                })
+                setTokens(response.data);  
+            }
+            catch(error){
+                console.log("Error al iniciar sesión con Google")
+            }
+            
         },
-        onError: (error) => console.log("login failed", error)
+        onError: (error) => console.log("login failed", error),
+        scope: "https://www.googleapis.com/auth/tasks",
+        flow: "auth-code"
+        
     })
 
     const logOut = () => {
@@ -36,39 +50,26 @@ const GoogleAuth: React.FC = () => {
         setProfile(null);
     };
 
-    useEffect(
-        () => {
-            if (user) {
-                axios
-                    .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`, {
-                        headers: {
-                            Authorization: `Bearer ${user.access_token}`,
-                            Accept: 'application/json'
-                        }
-                    })
-                    .then((res) => {
-                        setProfile(res.data);
-                        axios.post(url, {name: res.data.name,
-                                        email: res.data.email,
-                                        profilePic: res.data.picture,
-                                        isActive: true,
-                                        typeExternal: "Google",
-                                        externalId: user.access_token,
-                                        role: "Core"
-                                    }, 
-                                    {withCredentials: true})
-                        .then(res2 => {
-                            window.localStorage.setItem("id", res2.data.id)
-                            window.localStorage.setItem("name", res2.data.name)
-                            window.localStorage.setItem("email", res2.data.email)
-                            window.localStorage.setItem("roles", res2.data.roles)
-                            window.localStorage.setItem("token", res2.data.token)
-                            return navigate("/home")
-                        })
-                    })
-                    .catch((err) => console.log(err));
-            }
-    },[ user ]);
+    useEffect(() => {
+        if (tokens) {
+            axios.post(url, {accessToken: tokens.access_token, userRole: ["Core"]}, 
+                        {withCredentials: true})
+            .then(res=> {
+                console.log(res.data)
+                window.localStorage.setItem("id", res.data.id)
+                window.localStorage.setItem("name", res.data.name)
+                window.localStorage.setItem("email", res.data.email)
+                window.localStorage.setItem("roles", res.data.roles)
+                window.localStorage.setItem("token", res.data.token)
+                window.localStorage.setItem("g_auth", tokens.access_token)
+                window.localStorage.setItem("g_refresh", tokens.refresh_token)
+                window.localStorage.setItem("g_expires", tokens.expires_in)
+                window.localStorage.setItem("g_issued_at", tokens.issued_at)
+                return navigate("/home")
+            })
+            .catch((err) => console.log(err));              
+        }
+    },[ tokens ]);
 
     return  <>
                 {profile? (

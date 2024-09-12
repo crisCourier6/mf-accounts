@@ -13,9 +13,7 @@ type FormValues = {
     password: string
 }
 
-
-
-const Login: React.FC = () => {
+const LoginAdmin: React.FC = () => {
     const navigate = useNavigate()
     const form = useForm<FormValues>({
         mode: "onBlur",
@@ -34,7 +32,7 @@ const Login: React.FC = () => {
 
     const onSubmit = (data: FormValues) => {
         console.log(data)
-        axios.post(url, {
+        axios.post(url + "?v=admin", {
             email: data.email,
             pass: data.password
         }, {withCredentials: true})
@@ -46,7 +44,6 @@ const Login: React.FC = () => {
                 window.localStorage.setItem("email", res.data.email)
                 window.localStorage.setItem("roles", res.data.roles)
                 window.localStorage.setItem("token", res.data.token)
-                res.data.externalId?window.localStorage.setItem("g_auth", res.data.externalId):null
                 return navigate("/home")
             }
             setShowError(true)
@@ -54,13 +51,7 @@ const Login: React.FC = () => {
         }).catch((error) => {
             console.log(error.response)
             setShowError(true)
-            if (error.response.status == 401){
-                setErrorText("Credenciales inválidas")
-            }
-
-            else if (error.response.status == 403){
-                setErrorText("Cuenta no activada")
-            }
+            setErrorText(error.response.data.message)
         })
 
     }
@@ -128,4 +119,4 @@ const Login: React.FC = () => {
   
 }
 
-export default Login
+export default LoginAdmin

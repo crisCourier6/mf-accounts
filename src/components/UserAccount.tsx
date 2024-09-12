@@ -54,7 +54,14 @@ const UserAccount: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) =
         })
         .then((res)=>{
             console.log(res.data)
-            setUser(res.data)
+            const transformedUser = {
+                ...res.data,
+                createdAt: new Date(res.data.createdAt), // Convert `createdAt` to a Date object
+                lastLogin: new Date(res.data.lastLogin),
+                updatedAt: new Date(res.data.updatedAt),
+                activationExpire: new Date(res.data.activationExpire),
+            };  
+            setUser(transformedUser)
             setNewUserName(res.data.name)
             
                                 
@@ -193,8 +200,8 @@ const UserAccount: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) =
                         Información general
                         </Typography>
                     </Paper>
-                    <Paper elevation={0} sx={{fontSize: 14 }}>
-                    <ul style={{ paddingLeft: 20 }}>
+                    <Paper elevation={0}>
+                    <ul style={{ paddingLeft: 10 }}>
                         <Typography variant='subtitle1' color= "primary.dark">
                             <li><span style={{fontWeight: "bold"}}>Nombre: </span>{user.name}</li>
                         </Typography>
@@ -205,10 +212,10 @@ const UserAccount: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) =
                             <li><span style={{fontWeight: "bold"}}>Rol: </span>{user.roles}</li>
                         </Typography>
                         <Typography variant='subtitle1' color= "primary.dark">
-                            <li><span style={{fontWeight: "bold"}}>Miembro desde: </span>{user.createdAt}</li>
+                            <li><span style={{fontWeight: "bold"}}>Miembro desde: </span>{user.createdAt?.toLocaleDateString("es-CL", )}</li>
                         </Typography>
                         <Typography variant='subtitle1' color= "primary.dark">
-                            <li><span style={{fontWeight: "bold"}}>Último ingreso: </span>{user.lastLogin}</li>
+                            <li><span style={{fontWeight: "bold"}}>Último ingreso: </span>{user.lastLogin?.toLocaleDateString("es-CL", )}</li>
                         </Typography>
                     </ul>
                     </Paper>
@@ -262,6 +269,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) =
                                     variant="outlined"
                                     value={newUserName}
                                     onChange={handleNameChange}
+                                    inputProps={{maxLength: 100}}
                                     >
                                     </TextField>
                                 </DialogContent>

@@ -3,6 +3,9 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import { createTheme, ThemeProvider } from '@mui/material';
+import { esES } from '@mui/x-data-grid/locales';
+import { esES as pickersEsES } from '@mui/x-date-pickers/locales';
+import { esES as coreEsES } from '@mui/material/locale';
 
 declare module '@mui/material/Button' {
   interface ButtonPropsVariantOverrides {
@@ -64,12 +67,18 @@ const theme = createTheme({
     },
     
   }
-})
+},
+esES,
+pickersEsES,
+coreEsES
+)
       
-      ReactDOM.render(
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>,
-        document.getElementById("root")
-      );
+ReactDOM.render(
+  <React.StrictMode>
+    <ThemeProvider theme={theme}>
+      <App />
+    </ThemeProvider>
+  </React.StrictMode>,
+  document.getElementById("root")
+);
       

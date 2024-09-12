@@ -1,22 +1,35 @@
 import React from "react";
-import { Button, Box, TextField, Backdrop, Dialog, DialogContent, DialogContentText, DialogActions, InputAdornment, IconButton, Alert, Snackbar} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Button, Box, TextField, Backdrop, Dialog, DialogContent, DialogContentText, DialogActions, InputAdornment, IconButton, Alert, Snackbar, FormControlLabel, Checkbox, Typography, Grid} from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from "react-hook-form"
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { CheckBox } from "@mui/icons-material";
 // import { DevTool } from '@hookform/devtools';
 
 type FormValues = {
     name: string
     email: string
-    password: string
+    pass: string
     confirmPassword: string
     profilePic: string
+    address: string
+    description: string
+    phone: string
+    webPage: string
+    specialty: string
+    isCoach: boolean
+    isNutritionist: boolean
+    userRole: string[]
 }
 
-const Register: React.FC = () => {
+const RegisterRequest: React.FC = () => {
+    const currentUrl = window.location.href; // "http://example.com/login?u=expert"
+    const url = new URL(currentUrl);
+    const queryParams = url.searchParams;
+    const userType = queryParams.get('u');
     const navigate = useNavigate()
     const [file, setFile] = useState(null)
     const form = useForm<FormValues>({
@@ -25,10 +38,17 @@ const Register: React.FC = () => {
         defaultValues: {
             name: "",
             email: "",
-            password: "",
+            pass: "",
             confirmPassword: "",
-            profilePic: ""
-
+            profilePic: "",
+            userRole: userType==="expert"?["Core", "Expert"]:["Core", "Store"],
+            address: "",
+            description: "",
+            phone: "",
+            webPage: "",
+            specialty: "",
+            isNutritionist: true,
+            isCoach: false
         }
     })    
     const [showRegisterSuccess, setShowRegisterSuccess] = useState(false)
@@ -37,19 +57,16 @@ const Register: React.FC = () => {
     const [errorText, setErrorText] = useState("")
     const [showPass, setShowPass] = useState(false)
     const [showConfirmPass, setShowConfirmPass] = useState(false)
-    const url = "http://192.168.100.6:8080/auth/signup"
+    const registerURL = "http://192.168.100.6:8080/auth/signup"
 
     const { register, handleSubmit, formState, control, getValues, watch } = form
     const {errors} = formState
 
     const onSubmit = (data: FormValues) => {
         console.log(data)
-        axios.post(url, {
-            name: data.name,
-            email: data.email,
-            pass: data.password,
+        axios.post(registerURL, {
+            ...data,
             profilePic: "default_profile.png",
-            userRole: ["Core"]
         }, {withCredentials: true})
         .then((res)=>{
             if(res.data.name){
@@ -75,10 +92,6 @@ const Register: React.FC = () => {
         setShowRegisterSuccess(!showRegisterSuccess)
     }
 
-    const handleRequest = (userType: string) => {
-        navigate("request?u=" + userType )
-    }
-
     const handlePasswordhint = () => {
         setShowPasswordHint(!showPasswordHint)
     }
@@ -87,51 +100,50 @@ const Register: React.FC = () => {
         setFile(newFile)
       }
 
-    return  <form onSubmit={handleSubmit(onSubmit)} noValidate encType="multipart/form-data">
-        <Box
-        sx={{
-            pt: 2,
-            pb: 10,
-            display: "flex",
-            justifyContent: "center",
-            flexDirection: "column",
-            py: 2,
-            gap: 2,
-            width:"100%",
-        }}     
-        >
-            <Button onClick={()=>handleRequest("expert")}>
-                Soy nutricionista
-            </Button>
-            <Button onClick={()=>handleRequest("store")}>
-                Soy dueño de tienda
-            </Button>
+    return  <Grid container 
+    display="flex" 
+    flexDirection="column" 
+    justifyContent="center" 
+    alignItems="center" 
+    sx={{width: "90vw", maxWidth:"500px", gap:2}}>
+    
+    <form onSubmit={handleSubmit(onSubmit)} noValidate encType="multipart/form-data">
+        
+            <Typography variant="h5" my={2}>
+                Registro de {userType==="expert"?"nutricionista":"tienda"}
+            </Typography>
             <TextField 
+                sx={{my:1}}
                 id="name" 
                 label="Nombre" 
                 type="text" 
                 variant="standard" 
+                fullWidth
                 {...register("name", {required: "Ingresar nombre"})}
                 error={!!errors.name}
                 helperText = {errors.name?.message}
             />
        
             <TextField 
+                sx={{my:1}}
                 id="email" 
                 label="Email" 
                 type="email" 
                 variant="standard" 
+                fullWidth
                 {...register("email", {required: "Ingresar email"})}
                 error={!!errors.email}
                 helperText = {errors.email?.message}
             />
 
             <TextField 
-                id="password" 
+                sx={{my:1}}
+                id="pass" 
                 label="Contraseña" 
                 type={showPass ? 'text' : 'password'}
                 variant="standard" 
-                {...register("password", {required: "Ingresar contraseña", 
+                fullWidth
+                {...register("pass", {required: "Ingresar contraseña", 
                                             minLength: {
                                                 value: 8,
                                                 message: "Mínimo 8 caractéres"
@@ -142,8 +154,8 @@ const Register: React.FC = () => {
                                             }
 
                 })}
-                error={!!errors.password}
-                helperText = {errors.password?.message}
+                error={!!errors.pass}
+                helperText = {errors.pass?.message}
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">
@@ -160,12 +172,14 @@ const Register: React.FC = () => {
             />
 
             <TextField 
+                sx={{my:1}}
                 id="confirmPassword" 
                 label="Repetir contraseña" 
                 type={showConfirmPass ? 'text' : 'password'}
                 variant="standard" 
+                fullWidth
                 {...register("confirmPassword", {required: "Repetir contraseña",
-                                                validate: () => watch("password")!=watch("confirmPassword")?"Contraseñas no coinciden": true
+                                                validate: () => watch("pass")!=watch("confirmPassword")?"Contraseñas no coinciden": true
                 })}
                 error={!!errors.confirmPassword}
                 helperText = {errors.confirmPassword?.message}
@@ -183,13 +197,101 @@ const Register: React.FC = () => {
                     ),
                 }}
             />
+            <TextField 
+                sx={{my:1}}
+                id="address" 
+                label="Dirección" 
+                type="text" 
+                variant="standard" 
+                fullWidth
+                {...register("address", {required: "Ingresar dirección"})}
+                error={!!errors.address}
+                helperText = {errors.address?.message}
+            />
 
-            <Button type="submit" variant="contained" > Registrarse</Button>
+            <TextField 
+                sx={{my:1}}
+                id="description" 
+                label="Descripción" 
+                type="text" 
+                variant="standard" 
+                multiline
+                fullWidth
+                rows={5} // Default number of rows
+                maxRows={5} // Maximum number of rows it can expand to
+                {...register("description", {required: "Ingresar descripción breve"})}
+                error={!!errors.description}
+                helperText = {errors.description?.message}
+            />
+
+            <TextField 
+                sx={{my:1}}
+                id="phone" 
+                label="Teléfono" 
+                type="tel" 
+                variant="standard" 
+                fullWidth
+                inputProps={{
+                    pattern: "\\+(0-9){2} (9|2) [0-9]{8}", // Pattern for "+56 9 1234 5678"
+                    maxLength: 15, // Length for the pattern "+56 9 1234 5678"
+                }}
+                {...register("phone", {required: "Ingresar teléfono de contacto"})}
+                error={!!errors.phone}
+                helperText = {errors.phone?.message}
+            />
+
+            <TextField 
+                sx={{my:1}}
+                id="webPage" 
+                label="Página web" 
+                type="text" 
+                variant="standard" 
+                fullWidth
+                {...register("webPage", {})}
+                error={!!errors.webPage}
+                helperText = {errors.webPage?.message}
+            />
+
+            
+            {userType==="expert" && (<TextField 
+                sx={{my:1}}
+                id="specialty" 
+                label="Especialización" 
+                type="text" 
+                variant="standard" 
+                fullWidth
+                {...register("specialty", {required: "Ingresar especialización"})}
+                error={!!errors.specialty}
+                helperText = {errors.specialty?.message}
+            />)}
+            {userType==="expert" && (<Box my={1}>
+           
+                <FormControlLabel hidden={userType!="expert"}
+                    control={
+                        <Checkbox
+                            checked={watch("isNutritionist")}
+                            onChange={(e) => form.setValue("isNutritionist", e.target.checked)}
+                        />
+                    }
+                    label="Nutricionista"
+                />
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={watch("isCoach")}
+                            onChange={(e) => form.setValue("isCoach", e.target.checked)}
+                        />
+                    }
+                    label="Coach"
+                />
+            </Box>)}
+            <Button type="submit" variant="contained" sx={{mb: 2}} > Registrarse</Button>
+            
             <Backdrop open={showRegisterSuccess} onClick={handleSuccessDialog}>
                 <Dialog open={showRegisterSuccess} onClose={handleSuccessDialog}>
                     <DialogContent>
                         <DialogContentText>
-                            ¡Cuenta registrada con éxito! Revisa tu email para activar tu cuenta.
+                            ¡Solicitud registrada con éxito! Te enviaremos un email con el resultado de la evaluación.
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
@@ -201,7 +303,7 @@ const Register: React.FC = () => {
                                 bgcolor: "secondary.main", 
                             }
                         }} 
-                        onClick={() => {return navigate(0)}}>
+                        onClick={() => {return navigate("/login")}}>
                             OK
                         </Button>
                     </DialogActions>
@@ -223,10 +325,10 @@ const Register: React.FC = () => {
             </Backdrop>
         
         {/* <DevTool control = {control}/> */}
-        
-  </Box>
-  </form>
+    </form>   
+  </Grid>
+  
   
 }
 
-export default Register
+export default RegisterRequest

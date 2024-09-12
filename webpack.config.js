@@ -62,9 +62,12 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
             exposes: {
               "./Login": "./src/components/Login", // Ejemplo, aqui se exponen los componentes
               "./Register": "./src/components/Register",
+              "./RegisterRequest": "./src/components/RegisterRequest",
               "./GoogleAuth": "./src/components/GoogleAuth",
               "./Activate": "./src/components/Activate",
-              "./UserAccount": "./src/components/UserAccount"
+              "./UserList": "./src/components/UserList",
+              "./UserAccount": "./src/components/UserAccount",
+              "./LoginAdmin": "./src/components/LoginAdmin", // Ejemplo, aqui se exponen los componentes
             },
             shared: {
               ...dependencies,

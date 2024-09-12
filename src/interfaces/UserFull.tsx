@@ -5,13 +5,21 @@ export interface UserFull {
     hash?:string
     isActive?:boolean
     isSuspended?:boolean
+    isPending?:boolean
+    isCoach?:boolean
+    isNutritionist?:boolean
+    address?:string
+    description?:string
+    phone?:string
+    specialty?:string
+    webPage?:string
     activationToken?:string
     activationExpire?:Date
     profilePic?:string
     typeExternal?:string
     externalId?:string
-    lastLogin?:string
-    createdAt?:string
+    lastLogin?:Date
+    createdAt?:Date
     updatedAt?:Date
-    roles?:string[]
+    roles?:string
 }
