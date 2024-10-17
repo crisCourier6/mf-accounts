@@ -10,6 +10,7 @@ import { esES as coreEsES } from '@mui/material/locale';
 declare module '@mui/material/Button' {
   interface ButtonPropsVariantOverrides {
     dashed: true;
+    dark:true
   }
 }
 

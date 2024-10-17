@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Box, TextField, Backdrop, Dialog, DialogContent, DialogContentText, DialogActions, InputAdornment, IconButton, Alert, Snackbar} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form"
-import axios from 'axios';
+import api from "../api";
 import { useEffect, useState } from 'react';
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -37,14 +37,14 @@ const Register: React.FC = () => {
     const [errorText, setErrorText] = useState("")
     const [showPass, setShowPass] = useState(false)
     const [showConfirmPass, setShowConfirmPass] = useState(false)
-    const url = "http://192.168.100.6:8080/auth/signup"
+    const url = "/auth/signup"
 
     const { register, handleSubmit, formState, control, getValues, watch } = form
     const {errors} = formState
 
     const onSubmit = (data: FormValues) => {
         console.log(data)
-        axios.post(url, {
+        api.post(url, {
             name: data.name,
             email: data.email,
             pass: data.password,
@@ -100,12 +100,23 @@ const Register: React.FC = () => {
             width:"100%",
         }}     
         >
-            <Button onClick={()=>handleRequest("expert")}>
-                Soy nutricionista
-            </Button>
-            <Button onClick={()=>handleRequest("store")}>
-                Soy dueño de tienda
-            </Button>
+            <Box
+            sx={{
+                display: "flex",
+                justifyContent: "center",
+                flexDirection: "row",
+                gap: 2,
+                width:"100%",
+            }}     
+            >
+                <Button variant="dark" sx={{fontSize: 13}} onClick={()=>handleRequest("expert")}>
+                    Soy nutricionista
+                </Button>
+                <Button variant="dark" sx={{fontSize: 13}} onClick={()=>handleRequest("store")}>
+                    Soy dueño de tienda
+                </Button>
+            </Box>
+            
             <TextField 
                 id="name" 
                 label="Nombre" 

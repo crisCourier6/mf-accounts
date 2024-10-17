@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Box, TextField, Backdrop, Dialog, DialogContent, DialogContentText, DialogActions, InputAdornment, IconButton, Alert, Snackbar, FormControlLabel, Checkbox, Typography, Grid} from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from "react-hook-form"
-import axios from 'axios';
+import api from "../api";
 import { useEffect, useState } from 'react';
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -57,14 +57,18 @@ const RegisterRequest: React.FC = () => {
     const [errorText, setErrorText] = useState("")
     const [showPass, setShowPass] = useState(false)
     const [showConfirmPass, setShowConfirmPass] = useState(false)
-    const registerURL = "http://192.168.100.6:8080/auth/signup"
+    const registerURL = "/auth/signup"
 
     const { register, handleSubmit, formState, control, getValues, watch } = form
     const {errors} = formState
 
+    useEffect(() => {
+        document.title = "Solicitud de cuenta - EyesFood";
+    }, []); // Empty dependency array to ensure it runs only once on mount
+
     const onSubmit = (data: FormValues) => {
         console.log(data)
-        axios.post(registerURL, {
+        api.post(registerURL, {
             ...data,
             profilePic: "default_profile.png",
         }, {withCredentials: true})
@@ -204,7 +208,7 @@ const RegisterRequest: React.FC = () => {
                 type="text" 
                 variant="standard" 
                 fullWidth
-                {...register("address", {required: "Ingresar dirección"})}
+                {...register("address")}
                 error={!!errors.address}
                 helperText = {errors.address?.message}
             />
@@ -232,10 +236,14 @@ const RegisterRequest: React.FC = () => {
                 variant="standard" 
                 fullWidth
                 inputProps={{
-                    pattern: "\\+(0-9){2} (9|2) [0-9]{8}", // Pattern for "+56 9 1234 5678"
                     maxLength: 15, // Length for the pattern "+56 9 1234 5678"
                 }}
-                {...register("phone", {required: "Ingresar teléfono de contacto"})}
+                {...register("phone", {
+                    pattern: {
+                        value: /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,
+                        message: "Formato incorrecto"
+                    }    
+                })}
                 error={!!errors.phone}
                 helperText = {errors.phone?.message}
             />
@@ -247,7 +255,7 @@ const RegisterRequest: React.FC = () => {
                 type="text" 
                 variant="standard" 
                 fullWidth
-                {...register("webPage", {})}
+                {...register("webPage")}
                 error={!!errors.webPage}
                 helperText = {errors.webPage?.message}
             />

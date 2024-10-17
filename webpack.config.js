@@ -1,14 +1,18 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-      const { ModuleFederationPlugin } = require("webpack").container;
-      const { dependencies } = require("./package.json");
+const { ModuleFederationPlugin } = require("webpack").container;
+const { dependencies } = require("./package.json");
       
       module.exports = {
         entry: "./src/entry",
         mode: "development",
         devServer: {
           port: 4001, // Modificar
-          host: "192.168.100.6",
+          host: "localhost",
+          allowedHosts: 'all',
           historyApiFallback: true, // Necesario para que funcione React Router
+          client: {
+            overlay: false
+          }
         },
         module: {
           rules: [
@@ -66,6 +70,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
               "./GoogleAuth": "./src/components/GoogleAuth",
               "./Activate": "./src/components/Activate",
               "./UserList": "./src/components/UserList",
+              "./RoleList": "./src/components/RoleList",
               "./UserAccount": "./src/components/UserAccount",
               "./LoginAdmin": "./src/components/LoginAdmin", // Ejemplo, aqui se exponen los componentes
             },

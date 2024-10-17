@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Button, Box, TextField, Alert, Paper, Typography} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form"
-import axios from 'axios';
+import api from "../api";
 import { useState } from 'react';
 import { googleLogout, useGoogleLogin, GoogleLogin } from "@react-oauth/google"
 import GoogleIcon from '@mui/icons-material/Google';
@@ -23,13 +23,13 @@ const GoogleAuth: React.FC = () => {
     const [tokens, setTokens] = useState<any>(null)
     const [user, setUser] = useState<any>(null)
     const [profile, setProfile] = useState<any>(null)
-    const tokensURL = "http://192.168.100.6:8080/auth/login/tokens"
-    const url = "http://192.168.100.6:8080/auth/login/google"
+    const tokensURL = "/auth/login/tokens"
+    const url = "/auth/login/google"
 
     const login = useGoogleLogin({
         onSuccess: async (codeResponse) => {
             try{
-                const response = await axios.post(tokensURL, {
+                const response = await api.post(tokensURL, {
                     code: codeResponse.code
                 })
                 setTokens(response.data);  
@@ -52,7 +52,7 @@ const GoogleAuth: React.FC = () => {
 
     useEffect(() => {
         if (tokens) {
-            axios.post(url, {accessToken: tokens.access_token, userRole: ["Core"]}, 
+            api.post(url, {accessToken: tokens.access_token, userRole: ["Core"]}, 
                         {withCredentials: true})
             .then(res=> {
                 console.log(res.data)

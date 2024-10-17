@@ -1,7 +1,7 @@
 import React from "react";
-import { Button, Box, Alert, Grid, Dialog, DialogContent, DialogActions, TextField, Snackbar, InputAdornment, IconButton, Typography, DialogTitle, Tooltip} from '@mui/material';
+import { Button, Box, Alert, Grid, Dialog, DialogContent, DialogActions, TextField, Snackbar, InputAdornment, IconButton, Typography, DialogTitle, Tooltip, FormGroup, FormControlLabel, Checkbox} from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from "../api";
 import { useEffect, useState } from 'react';
 import { DataGrid, GridColDef, GridEventListener, GridFilterModel, GridRenderCellParams, GridToolbar } from "@mui/x-data-grid"
 import { esES } from '@mui/x-data-grid/locales';
@@ -11,7 +11,10 @@ import EditIcon from '@mui/icons-material/Edit';
 import UserAccountEdit from "./UserAccountEdit";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { UserFull } from "../interfaces/UserFull";
+import AddIcon from '@mui/icons-material/Add';
+import { User } from "../interfaces/User"
+import { Role } from "../interfaces/Role";
+import { UserHasRole } from "../interfaces/userHasRole";
  
 type FormValues = {
     name: string
@@ -24,18 +27,24 @@ type FormValues = {
 
 const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
     const navigate = useNavigate()
-    const url = "http://192.168.100.6:8080/users"
-    const [users, setUsers] = useState<UserFull[]>([{id:""}])
+    const usersURL = "/users"
+    const rolesURL = "/roles"
+    const [users, setUsers] = useState<User[]>([{id:""}])
+    const [roles, setRoles] = useState<Role[]>([])
     const [reloadUsers, setReloadUsers] = useState(false)
+    const [showChangeRolesDialog, setShowChangeRolesDialog] = useState(false)
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [openNewTechDialog, setOpenNewTechDialog] = useState(false);
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarMsg, setSnackbarMsg] = useState('');
+    const [reason, setReason] = useState("")
     const [filterModel, setFilterModel] = useState<GridFilterModel>({items: [] });
     const [showPass, setShowPass] = useState(false)
     const [showConfirmPass, setShowConfirmPass] = useState(false)
+    const [selectedRoles, setSelectedRoles] = useState<Role[]>([])
+    const [showRejectDialog, setShowRejectDialog] = useState(false)
     const form = useForm<FormValues>({
         mode: "onBlur",
         reValidateMode: "onBlur",
@@ -51,17 +60,20 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
 
     const { register, handleSubmit, formState, control, getValues, watch } = form
     const {errors} = formState
+    const queryParams = "?ws=true&we=true&wr=true"
 
     useEffect(()=>{
+        document.title = "Usuarios - EF Admin";
         try {
-            axios.get(url, {
+            api.get(`${usersURL}${queryParams}`, {
                 withCredentials: true,
                 headers: {
                     Authorization: "Bearer " + window.localStorage.token
                 }
             })
             .then((res)=>{
-                const transformedUsers = res.data.map((user: any) => ({
+                const transformedUsers = res.data.map((user: any) => (
+                    {
                     ...user,
                     createdAt: new Date(user.createdAt), // Convert `createdAt` to a Date object
                     lastLogin: new Date(user.lastLogin),
@@ -76,10 +88,46 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
         }
     },[])
 
+    useEffect(()=>{
+        api.get(`${rolesURL}`, {
+            withCredentials: true,
+            headers: {
+                Authorization: "Bearer " + window.localStorage.token
+            }
+        })
+        .then(res => {
+            setRoles(res.data)
+        })
+        .catch(error => {
+            console.log(error)
+        })
+    },[])
+
+    useEffect(() => {
+        if (selectedUser?.userHasRole) {
+            const initialRoles = selectedUser.userHasRole.map((userHasRole: UserHasRole) => userHasRole.role);
+            setSelectedRoles(initialRoles.filter(Boolean) as Role[]); // Ensure no null values
+        }
+    }, [selectedUser]);
+
     const columns: GridColDef[] = [
         {field: "name", headerName: "Nombre", flex: 1.2, headerClassName: "header-colors", headerAlign: "center"},
         {field: "email", headerName: "Email", flex: 2, headerClassName: "header-colors", headerAlign: "center"},
-        {field: "roles", headerName: "Roles", flex: 1, headerClassName: "header-colors", headerAlign: "center", align: "center"},
+        {
+            field: "roles",
+            headerName: "Roles",
+            flex: 1,
+            headerClassName: "header-colors",
+            headerAlign: "center",
+            align: "center",
+            
+            renderCell: (params: GridRenderCellParams) => {
+                // Extract roles from userHasRole
+                const roles = params.row.userHasRole?.map((userRole: any) => userRole.role?.name).filter(Boolean);
+                // Join the roles into a comma-separated string
+                return roles?.length > 0 ? roles.join(', ') : 'Sin roles'; // Handle case where there are no roles
+            },
+        },
         {field: "createdAt", headerName: "Fecha", flex: 1, headerClassName: "header-colors", headerAlign: "center", align: "center", 
             type: "date"
         },
@@ -147,17 +195,16 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
 
       const handleDelete = async (id: string) => {
         try {
-            await axios.delete(`http://192.168.100.6:8080/users/${id}`, {
+            await api.delete(`http://192.168.100.6:8080/users/${id}`, {
                 withCredentials: true,
                 headers: {
                     Authorization: "Bearer " + window.localStorage.token
                 }
             });
-            setUsers(users.filter((user: UserFull) => user.id !== id));
-            setSnackbarMessage('Usuario eliminado.');
+            setUsers(users.filter((user: User) => user.id !== id));
+            setSnackbarMsg('Usuario eliminado.');
         } catch (error) {
-            console.log(error);
-            setSnackbarMessage('Error al intentar eliminar usuario');
+            setSnackbarMsg('Error al intentar eliminar usuario');
         } finally {
             setOpenDeleteDialog(false);
             setSnackbarOpen(true);
@@ -180,7 +227,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
     const handleCreateTech = (data: FormValues) => {
        
         try {
-            axios.post(url, {
+            api.post(usersURL, {
                 name: data.name,
                 email: data.email,
                 pass: data.pass,
@@ -192,7 +239,6 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                 }
             })
             .then((res)=>{
-                console.log(res.data)
                 if(res.data.name){
                     setUsers((prevUsers) => [...prevUsers,
                         {
@@ -203,14 +249,13 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                             activationExpire: new Date(res.data.activationExpire),
                         }
                     ]);
-                    setSnackbarMessage("Técnico creado con éxito")   
+                    setSnackbarMsg("Técnico creado con éxito")   
                     setOpenNewTechDialog(false)
                 }                
             })
         }
         catch (error) {
-            console.log(error)
-            setSnackbarMessage("Error al crear técnico")   
+            setSnackbarMsg("Error al crear técnico")   
             setOpenNewTechDialog(false)
         }
         finally{
@@ -221,7 +266,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
 
     const handleStateChange = (id:string, newState: string) => {
         try {
-            axios.post(`${url}/${id}`,
+            api.patch(`${usersURL}/${id}`,
                 {
                     isActive:newState==="Active"?true:false,
                     isPending:false
@@ -242,7 +287,6 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                      } : user
                 );
                 setUsers(updatedUsers);
-                console.log(updatedUsers)
                 if (selectedUser?.id === id) {
                     setSelectedUser((prevUser:any) => ({
                         ...prevUser,
@@ -257,51 +301,100 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
             console.log(error)
         }
         finally{
-            setSnackbarMessage(newState==="Active"?'Cuenta activada correctamente':'Cuenta desactivada correctamente');
+            setSnackbarMsg(newState==="Active"?'Cuenta activada correctamente':'Cuenta desactivada correctamente');
             setSnackbarOpen(true)
         }
        
     };
 
     const handleSuspendedChange = (id:string, newState: string) => {
-        try {
-            axios.post(`${url}/${id}`,
-                {
-                    isSuspended:newState==="Suspended"?true:false,
-                }, 
-                {
-                    withCredentials: true,
-                    headers: {
-                        Authorization: "Bearer " + window.localStorage.token
-                    }
+        api.patch(`${usersURL}/${id}`,
+            {
+                isSuspended:newState==="Suspended"?true:false,
+            }, 
+            {
+                withCredentials: true,
+                headers: {
+                    Authorization: "Bearer " + window.localStorage.token
                 }
-            )
-            .then((res)=>{     
-                const updatedUsers:any = users.map((user:any) => 
-                    user.id === id ? { 
-                        ...user, 
-                        isSuspended: newState==="Suspended"?true:false,
-                     } : user
-                );
-                setUsers(updatedUsers);
-                console.log(updatedUsers)
-                if (selectedUser?.id === id) {
-                    setSelectedUser((prevUser:any) => ({
-                        ...prevUser,
-                        isSuspended: newState==="Suspended"?true:false,
-                    }));
-                }
-            })
-            
-        }
-        catch (error){
+            }
+        )
+        .then((res)=>{     
+            const updatedUsers:any = users.map((user:any) => 
+                user.id === id ? { 
+                    ...user, 
+                    isSuspended: newState==="Suspended"?true:false,
+                    } : user
+            );
+            setUsers(updatedUsers);
+            if (selectedUser?.id === id) {
+                setSelectedUser((prevUser:any) => ({
+                    ...prevUser,
+                    isSuspended: newState==="Suspended"?true:false,
+                }));
+            }
+            console.log(res.data)
+            setSnackbarMsg(newState==="Suspended"?'Cuenta suspendida correctamente':'Cuenta restaurada correctamente');
+        })
+        .catch (error=>{
             console.log(error)
-        }
-        finally{
-            setSnackbarMessage(newState==="Suspended"?'Cuenta suspendida correctamente':'Cuenta restaurada correctamente');
+            setSnackbarMsg(error.response.data.message)
+        })
+        .finally(()=>{
             setSnackbarOpen(true)
-        }
+        })
        
+    };
+
+    const onRoleUpdate = (updatedUser:User) =>{
+        setUsers((prevUsers) =>
+            prevUsers.map((user) =>
+                user.id === updatedUser.id
+                    ? { ...user, userHasRole: updatedUser.userHasRole } // Replace the roles
+                    : user
+            )
+        );
+        if (selectedUser?.id === updatedUser.id) {
+            setSelectedUser((prevSelectedUser:User) => ({
+                ...prevSelectedUser,
+                userHasRole: updatedUser.userHasRole,
+            }));
+        }
+    }
+
+    const handleRoleToggle = (role: Role) => {
+        setSelectedRoles((prev) =>
+            prev.some((r) => r.id === role.id)
+                ? prev.filter((r) => r.id !== role.id) // Remove if already selected
+                : [...prev, role] // Add if not selected
+        );
+    };
+
+    const handleChangeRoles = () => {
+        // Logic to handle adding roles (e.g., making a request to the backend)
+        api.patch(`${usersURL}/${selectedUser.id}/roles`,
+            {
+                userHasRoles: selectedRoles // Send the selected roles
+            }, {
+                withCredentials: true,
+                headers: {
+                    Authorization: "Bearer " + window.localStorage.token
+                }
+            }
+        )
+        .then(res => {
+            console.log(res);
+            onRoleUpdate(res.data); // Call the parent or update function with new roles
+            setSnackbarMsg("Roles actualizados");
+        })
+        .catch(error => {
+            console.error(error);
+            setSnackbarMsg(error.response.data.message);
+        })
+        .finally(() => {
+            setSnackbarOpen(true);
+            setShowChangeRolesDialog(false); // Close the dialog after updating roles
+        });
     };
 
 
@@ -408,6 +501,20 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                             </Button>
                         </DialogActions>
                     </Dialog>
+                    <Dialog open={showRejectDialog} onClose={() => setShowRejectDialog(false)}>
+                        <DialogTitle>Rechazar cuenta</DialogTitle>
+                        <DialogContent>
+                            ¿Seguro que desea rechazar esta solicitud?
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => setOpenDeleteDialog(false)} color="primary">
+                                No
+                            </Button>
+                            <Button onClick={() => handleDelete(selectedUser?.id)} disabled={reason===""} variant="contained" color="primary">
+                                Sí
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
                     <Dialog open={openEditDialog} onClose={handleCloseEditDialog}>
                         <DialogTitle>Modificar usuario</DialogTitle>
                         <DialogContent>
@@ -416,6 +523,9 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                         <DialogActions>
                             {selectedUser?.isPending && (
                                 <Button variant="contained" onClick={()=>handleStateChange(selectedUser.id, "Active")} color="primary">Aceptar cuenta</Button>
+                            )} 
+                            {selectedUser?.isPending && (
+                                <Button variant="contained" onClick={()=>setShowRejectDialog(true)} color="primary">Rechazar cuenta</Button>
                             )} 
                             {selectedUser?.isActive && (
                                 <Button variant="contained" onClick={()=>handleStateChange(selectedUser.id, "Inactive")} color="primary">Desactivar cuenta</Button>
@@ -428,7 +538,10 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                             )} 
                             {!selectedUser?.isPending && !selectedUser?.isSuspended && (
                                 <Button variant="contained" onClick={()=>handleSuspendedChange(selectedUser.id, "Suspended")} color="primary">Suspender cuenta</Button>
-                            )}         
+                            )} 
+                            <Button variant="contained" onClick={()=>{setShowChangeRolesDialog(true)}} color="primary">
+                               Cambiar roles
+                            </Button>        
                             <Button variant="contained" onClick={handleCloseEditDialog} color="primary">
                                 Salir
                             </Button>
@@ -438,14 +551,29 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                         open={snackbarOpen}
                         autoHideDuration={6000}
                         onClose={handleCloseSnackbar}
-                        message={snackbarMessage}
+                        message={snackbarMsg}
                     >
-                        <Alert onClose={handleCloseSnackbar} severity={snackbarMessage.includes("Error")?"error":"success"} sx={{ width: '100%' }}>
-                            {snackbarMessage}
+                        <Alert onClose={handleCloseSnackbar} severity={snackbarMsg.includes("Error")?"error":"success"} sx={{ width: '100%' }}>
+                            {snackbarMsg}
                         </Alert>
                     </Snackbar>
-                    <Button variant="contained" onClick={()=>setOpenNewTechDialog(true)} color="primary">
-                        Crear técnico
+                    <Button onClick={()=>setOpenNewTechDialog(true)}
+                        variant="dark" 
+                        sx={{
+                            display: "flex",
+                            position: 'fixed',
+                            bottom: 0, // 16px from the bottom
+                            zIndex: 100, // High zIndex to ensure it's on top of everything
+                            height: "48px",
+                            width: "50%",
+                            maxWidth: "500px"
+                        }}
+                    >
+                        <AddIcon sx={{fontSize: 40}}></AddIcon>
+                        <Typography variant='subtitle1' color={"inherit"}>
+                            Crear técnico
+                        </Typography>
+                        
                     </Button>
                     
                     <Dialog open={openNewTechDialog} onClose={()=>{setOpenNewTechDialog(false)}} sx={{width: "90%", maxWidth: "500px", margin: "auto"}}>
@@ -549,6 +677,36 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                         
                         </form>
                     </Dialog>
+                    <Dialog
+                    open={showChangeRolesDialog}
+                    onClose={() => setShowChangeRolesDialog(false)}
+                    PaperProps={{ sx: { maxWidth: "500px", width: "95vw", }}}
+                >
+                    <DialogTitle>Cambiar roles del usuario {selectedUser?.name}</DialogTitle>
+                    <DialogContent>
+                        <FormGroup>
+                                {roles.map((role: Role) => (<div key={role.id}>
+                                    <Box  sx={{display: "flex", justifyContent: "space-between", width: "100%"}}>
+                                        <FormControlLabel
+                                            key={role.id}
+                                            control={ 
+                                                <Checkbox 
+                                                    checked={selectedRoles.some(p => p.id === role.id)}
+                                                    onChange={() => handleRoleToggle(role)}
+                                                />
+                                            }
+                                            label={role.name}
+                                        ></FormControlLabel>
+                                    </Box>
+                                    </div>
+                                ))}
+                        </FormGroup>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setShowChangeRolesDialog(false)}>Cancelar</Button>
+                        <Button variant="contained" onClick={handleChangeRoles}>Guardar</Button>
+                    </DialogActions>
+                </Dialog>
                     
             </Box>
         </Grid>

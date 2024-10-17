@@ -1,51 +1,22 @@
 import React from "react";
 import { Button, Box, Alert, Paper, Grid, Backdrop, Dialog, DialogContent, DialogActions, TextField, Snackbar, SnackbarCloseReason, InputAdornment, IconButton, Typography} from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from "../api";
 import { useEffect, useState } from 'react';
 // import { DevTool } from '@hookform/devtools';
-import { UserFull } from "../interfaces/UserFull";
 import "./Components.css"
-import { useForm } from "react-hook-form";
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { User } from "../interfaces/User";
 
-type UserValues = {
-    id:string
-    email?:string
-    name?:string
-    hash?:string
-    isActive?:boolean
-    isSuspended?:boolean
-    isPending?:boolean
-    isCoach?:boolean
-    isNutritionist?:boolean
-    address?:string
-    description?:string
-    phone?:string
-    specialty?:string
-    webPage?:string
-    activationToken?:string
-    activationExpire?:Date
-    profilePic?:string
-    typeExternal?:string
-    externalId?:string
-    lastLogin?:Date
-    createdAt?:Date
-    updatedAt?:Date
-    roles?:string
-}
-
-const UserAccountEdit: React.FC<{selectedUser:UserValues}> = (params) => {
+const UserAccountEdit: React.FC<{selectedUser:User}> = (params) => {
     const navigate = useNavigate()
-    const [user, setUser] = useState<UserValues>({id:""})
+    const [user, setUser] = useState<User>({id:""})
     const [successOpen, setSuccessOpen] = useState(false)
     const [passErrorOpen, setPassErrorOpen] = useState(false)
     const [isActive, setIsActive] = useState<boolean | undefined>(false)
     const [isSuspended, setIsSuspended] = useState<boolean | undefined>(false)
     const [isPending, setIsPending] = useState<boolean | undefined>(false)
 
-    const url = "http://192.168.100.6:8080/users/" + params.selectedUser.id
+    const url = "/users/" + params.selectedUser.id
     useEffect(()=>{
        setUser(params.selectedUser)
     },[params])
@@ -101,7 +72,7 @@ const UserAccountEdit: React.FC<{selectedUser:UserValues}> = (params) => {
                             <li><span style={{fontWeight: "bold"}}>Email: </span>{user.email}</li>
                         </Typography>
                         <Typography variant='subtitle1' color= "primary.dark">
-                            <li><span style={{fontWeight: "bold"}}>Rol: </span>{user.roles}</li>
+                            <li><span style={{fontWeight: "bold"}}>Rol: </span>{user.userHasRole?.map((userRole: any) => userRole.role?.name).filter(Boolean).join(", ")}</li>
                         </Typography>
                         <Typography variant='subtitle1' color= "primary.dark">
                             <li><span style={{fontWeight: "bold"}}>Miembro desde: </span>{user.createdAt?.toLocaleDateString("es-CL", )}</li>
@@ -123,7 +94,7 @@ const UserAccountEdit: React.FC<{selectedUser:UserValues}> = (params) => {
 
                 </Box>
 
-                {user.roles?.includes("Expert") && <Box
+                {user.expertProfile && <Box
                 sx={{
                     border: "5px solid",
                     borderColor: "primary.main",
@@ -145,28 +116,37 @@ const UserAccountEdit: React.FC<{selectedUser:UserValues}> = (params) => {
                     <Paper elevation={0}>
                     <ul style={{ paddingLeft: 10 }}>
                         <Typography variant='subtitle1' color= "primary.dark">
-                            <li><span style={{fontWeight: "bold"}}>Descripción: </span>{user.description}</li>
+                            <li><span style={{fontWeight: "bold"}}>Descripción: </span>{user.expertProfile.description}</li>
                         </Typography>
                         <Typography variant='subtitle1' color= "primary.dark">
-                            <li><span style={{fontWeight: "bold"}}>Especialización: </span>{user.specialty}</li>
+                            <li><span style={{fontWeight: "bold"}}>Especialización: </span>{user.expertProfile.specialty}</li>
                         </Typography>
                         <Typography variant='subtitle1' color= "primary.dark">
-                            <li><span style={{fontWeight: "bold"}}>Dirección: </span>{user.address}</li>
+                            <li><span style={{fontWeight: "bold"}}>Dirección: </span>{user.expertProfile.address}</li>
                         </Typography>
                         <Typography variant='subtitle1' color= "primary.dark">
-                            <li><span style={{fontWeight: "bold"}}>Teléfono: </span>{user.phone}</li>
+                            <li><span style={{fontWeight: "bold"}}>Teléfono: </span>{user.expertProfile.phone}</li>
                         </Typography>
                         <Typography variant='subtitle1' color= "primary.dark">
-                            <li><span style={{fontWeight: "bold"}}>Página web: </span>{user.webPage}</li>
+                            <li><span style={{fontWeight: "bold"}}>Página web: </span>
+                                {user.expertProfile.webPage?<a 
+                                    href={user.expertProfile.webPage?.startsWith('http')? user.expertProfile.webPage : `https://${user.expertProfile.webPage}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    style={{ color: 'blue', textDecoration: 'none' }}
+                                >
+                                    Ver página web
+                            </a>:<>Sin página web</>}
+                            </li>
                         </Typography> 
-                        {user.isNutritionist && <Typography variant='subtitle1' color= "primary.dark">Nutricionista</Typography>}
-                        {user.isCoach && <Typography variant='subtitle1' color= "primary.dark">Coach</Typography>}
+                        {user.expertProfile.isNutritionist && <Typography variant='subtitle1' color= "primary.dark">Nutricionista</Typography>}
+                        {user.expertProfile.isCoach && <Typography variant='subtitle1' color= "primary.dark">Coach</Typography>}
                     </ul>
                     </Paper>
 
                 </Box>
             }
-            {user.roles?.includes("Store") && <Box
+            {user.storeProfile && <Box
                 sx={{
                     border: "5px solid",
                     borderColor: "primary.main",
@@ -188,16 +168,25 @@ const UserAccountEdit: React.FC<{selectedUser:UserValues}> = (params) => {
                     <Paper elevation={0}>
                     <ul style={{ paddingLeft: 10 }}>
                         <Typography variant='subtitle1' color= "primary.dark">
-                            <li><span style={{fontWeight: "bold"}}>Descripción: </span>{user.description}</li>
+                            <li><span style={{fontWeight: "bold"}}>Descripción: </span>{user.storeProfile.description}</li>
                         </Typography>
                         <Typography variant='subtitle1' color= "primary.dark">
-                            <li><span style={{fontWeight: "bold"}}>Dirección: </span>{user.address}</li>
+                            <li><span style={{fontWeight: "bold"}}>Dirección: </span>{user.storeProfile.address}</li>
                         </Typography>
                         <Typography variant='subtitle1' color= "primary.dark">
-                            <li><span style={{fontWeight: "bold"}}>Teléfono: </span>{user.phone}</li>
+                            <li><span style={{fontWeight: "bold"}}>Teléfono: </span>{user.storeProfile.phone}</li>
                         </Typography>
                         <Typography variant='subtitle1' color= "primary.dark">
-                            <li><span style={{fontWeight: "bold"}}>Página web: </span>{user.webPage}</li>
+                        <li><span style={{fontWeight: "bold"}}>Página web: </span>
+                                {user.storeProfile.webPage?<a 
+                                    href={user.storeProfile.webPage?.startsWith('http')? user.storeProfile.webPage : `https://${user.storeProfile.webPage}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    style={{ color: 'blue', textDecoration: 'none' }}
+                                >
+                                    Ver página web
+                            </a>:<>Sin página web</>}
+                            </li>
                         </Typography> 
                     </ul>
                     </Paper>

@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Button, Box, TextField, Alert, InputAdornment, IconButton} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form"
-import axios from 'axios';
+import api from "../api";
 import { useState } from 'react';
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -27,40 +27,42 @@ const Login: React.FC = () => {
     })   
     const [showError, setShowError] = useState(false);
     const [errorText, setErrorText] = useState("")
-    const url = "http://192.168.100.6:8080/auth/login"
+    const url = "/auth/login"
     const { register, handleSubmit, formState, control } = form
     const {errors} = formState
     const [showPass, setShowPass] = useState(false)
+    const queryParams = "?r=Core"
+
+    useEffect(() => {
+        document.title = "Iniciar sesión - EyesFood";
+    }, []); // Empty dependency array to ensure it runs only once on mount
 
     const onSubmit = (data: FormValues) => {
-        console.log(data)
-        axios.post(url, {
+        api.post(`${url}${queryParams}`, {
             email: data.email,
             pass: data.password
-        }, {withCredentials: true})
+        }, {
+            withCredentials: true,
+        })
         .then((res)=>{
-            console.log(res.status)
+            console.log(res.data)
             if(res.data.name){
                 window.localStorage.setItem("id", res.data.id)
                 window.localStorage.setItem("name", res.data.name)
                 window.localStorage.setItem("email", res.data.email)
-                window.localStorage.setItem("roles", res.data.roles)
                 window.localStorage.setItem("token", res.data.token)
+                window.localStorage.setItem("roles", res.data.roles)
                 res.data.externalId?window.localStorage.setItem("g_auth", res.data.externalId):null
+                res.data.expertProfile?window.localStorage.e_id = res.data.expertProfile.id:null
+                res.data.storeProfile?window.localStorage.s_id = res.data.storeProfile.id:null
                 return navigate("/home")
             }
             setShowError(true)
             
         }).catch((error) => {
-            console.log(error.response)
+            console.log(error)
             setShowError(true)
-            if (error.response.status == 401){
-                setErrorText("Credenciales inválidas")
-            }
-
-            else if (error.response.status == 403){
-                setErrorText("Cuenta no activada")
-            }
+            setErrorText(error.response.data.message)
         })
 
     }

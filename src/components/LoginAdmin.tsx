@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import { Button, Box, TextField, Alert, InputAdornment, IconButton} from '@mui/material';
+import { Button, Box, TextField, Alert, InputAdornment, IconButton, FormLabel, RadioGroup, FormControlLabel, Radio, Grid} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form"
-import axios from 'axios';
+import api from "../api";
 import { useState } from 'react';
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -25,51 +25,58 @@ const LoginAdmin: React.FC = () => {
     })   
     const [showError, setShowError] = useState(false);
     const [errorText, setErrorText] = useState("")
-    const url = "http://192.168.100.6:8080/auth/login"
+    const url = "/auth/login"
     const { register, handleSubmit, formState, control } = form
     const {errors} = formState
     const [showPass, setShowPass] = useState(false)
+    const [selectedRole, setSelectedRole] = useState<string>('Admin'); // Default selected role
+    
+    useEffect(() => {
+        document.title = "Iniciar sesión - EF Admin";
+    }, []); // Empty dependency array to ensure it runs only once on mount
 
     const onSubmit = (data: FormValues) => {
-        console.log(data)
-        axios.post(url + "?v=admin", {
+        api.post(`${url}?r=${selectedRole}`, {
             email: data.email,
             pass: data.password
         }, {withCredentials: true})
         .then((res)=>{
-            console.log(res.status)
             if(res.data.name){
                 window.localStorage.setItem("id", res.data.id)
                 window.localStorage.setItem("name", res.data.name)
                 window.localStorage.setItem("email", res.data.email)
-                window.localStorage.setItem("roles", res.data.roles)
                 window.localStorage.setItem("token", res.data.token)
-                return navigate("/home")
+                window.localStorage.setItem("role", selectedRole)
+                return navigate(`/home`)
             }
             setShowError(true)
             
         }).catch((error) => {
-            console.log(error.response)
             setShowError(true)
             setErrorText(error.response.data.message)
         })
 
     }
 
-    return  <form onSubmit={handleSubmit(onSubmit)} noValidate>
+    return  (
+        <Grid container display="flex" 
+        flexDirection="column" 
+        justifyContent="center"
+        alignItems="center"
+        sx={{width: "100vw", gap:2, flexWrap: "wrap", py: 5}}
+        >
         <Box
         sx={{
-            pt: 2,
-            pb: 10,
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             flexDirection: "column",
             py: 2,
             gap: 5,
-            width:"100%"
+            width:"90%",
         }}     
         >
+            <form onSubmit={handleSubmit(onSubmit)} noValidate>
        
             <TextField 
                 id="email" 
@@ -79,7 +86,7 @@ const LoginAdmin: React.FC = () => {
                 {...register("email", {required: "Ingresar email"})}
                 error={!!errors.email}
                 helperText = {errors.email?.message}
-                fullWidth
+                sx={{width:"100%", maxWidth: "400px"}}
                 inputProps={{maxLength: 100}}
             />
 
@@ -105,18 +112,43 @@ const LoginAdmin: React.FC = () => {
                     ),
                 }}
                 inputProps={{maxLength: 100}}
-                fullWidth
+                sx={{width:"100%", maxWidth: "400px"}}
             />
+            
+                <RadioGroup
+                    row
+                    value={selectedRole}
+                    onChange={(e) => setSelectedRole(e.target.value)
+                    }
+                >
+                    <Box
+                    sx={{
+                        py: 2,
+                        display: "flex",
+                        justifyContent: "space-evenly",
+                        flexDirection: "row",
+                        gap: 2,
+                        width:"100%",
+                        flexWrap: "wrap",
+                    }}     
+                    >
+                        <FormControlLabel value="Admin" control={<Radio />} label="Admin" />
+                        <FormControlLabel value="Tech" control={<Radio />} label="Técnico" />
+                        <FormControlLabel value="Expert" control={<Radio />} label="Experto" />
+                        <FormControlLabel value="Store" control={<Radio />} label="Tienda" />
+                    </Box>
+                </RadioGroup>
 
             <Button type="submit" variant="contained" sx={{width: "100%"}} > Iniciar sesión</Button>
             
             <Alert severity="error" sx={{display: showError?null:"none"}} >{errorText}</Alert>
         
         {/* <DevTool control = {control}/> */}
-        
+        </form>
   </Box>
-  </form>
+  </Grid>
   
+)
 }
 
 export default LoginAdmin
