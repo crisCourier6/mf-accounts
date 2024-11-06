@@ -7,7 +7,7 @@ const { dependencies } = require("./package.json");
         mode: "development",
         devServer: {
           port: 4001, // Modificar
-          host: "localhost",
+          host: "0.0.0.0",
           allowedHosts: 'all',
           historyApiFallback: true, // Necesario para que funcione React Router
           client: {
@@ -90,6 +90,9 @@ const { dependencies } = require("./package.json");
             },
           }),
         ],
+        output: {
+          publicPath: "http://localhost:4001/", // Necesario para rutas anidadas (/path/nested-path)
+        },
         resolve: {
           extensions: [".tsx", ".ts", ".js", ".jsx"],
         },
