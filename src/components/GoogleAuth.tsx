@@ -20,7 +20,7 @@ const GoogleAuth: React.FC = () => {
     const navigate = useNavigate()
     const [tokens, setTokens] = useState<any>(null)
     const [profile, setProfile] = useState<any>(null)
-    const [googleResponse, setGoogleResponse] = useState<any>(null)
+    const [googleResponse, setGoogleResponse] = useState<any | null>(null)
     const tokensURL = "/auth/login/tokens"
     const url = "/auth/login/google"
 
@@ -48,15 +48,18 @@ const GoogleAuth: React.FC = () => {
     };
 
     useEffect(()=>{
-        api.post(tokensURL, {
-            code: googleResponse.code
-        })
-        .then(res => {
-            setTokens(res.data)
-        })
-        .catch(error => {
-            console.log("Error al inicar sesión con Google")
-        })
+        if (googleResponse){
+            api.post(tokensURL, {
+                code: googleResponse.code
+            })
+            .then(res => {
+                setTokens(res.data)
+            })
+            .catch(error => {
+                console.log("Error al inicar sesión con Google")
+            })
+        }
+        
     }, [googleResponse])
 
     useEffect(() => {
