@@ -1,9 +1,8 @@
-import React, { useEffect } from "react";
-import { Button, Box, TextField, Alert, InputAdornment, IconButton, FormLabel, RadioGroup, FormControlLabel, Radio, Grid} from '@mui/material';
+import React, { useEffect, useState } from "react";
+import { Button, Box, TextField, Alert, InputAdornment, IconButton, RadioGroup, FormControlLabel, Radio, Grid} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form"
 import api from "../api";
-import { useState } from 'react';
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 // import { DevTool } from '@hookform/devtools';
@@ -26,7 +25,7 @@ const LoginAdmin: React.FC = () => {
     const [showError, setShowError] = useState(false);
     const [errorText, setErrorText] = useState("")
     const url = "/auth/login"
-    const { register, handleSubmit, formState, control } = form
+    const { register, handleSubmit, formState } = form
     const {errors} = formState
     const [showPass, setShowPass] = useState(false)
     const [selectedRole, setSelectedRole] = useState<string>('Admin'); // Default selected role

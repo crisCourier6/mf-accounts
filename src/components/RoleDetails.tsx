@@ -1,10 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, Typography, IconButton, Box, Avatar, DialogActions, Button, Divider, Paper, TextField, FormControlLabel, Switch, Checkbox, FormGroup, SnackbarCloseReason, Snackbar, Alert, Tooltip } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import React, { useEffect, useState } from 'react';
+import { Dialog, DialogTitle, DialogContent, Typography, IconButton, Box, DialogActions, 
+    Button, Divider, TextField, FormControlLabel, Checkbox, FormGroup, SnackbarCloseReason, Snackbar, Alert, Tooltip } from '@mui/material';
 import api from '../api';
-import NoPhoto from "../../public/default_profile.png"
 import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
-import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { Role } from '../interfaces/Role';
 import { RoleHasPermission } from '../interfaces/RoleHasPermission';
@@ -28,7 +26,6 @@ type PermissionValues = {
 }
 
 const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate, onAddPermission, onDeletePermission, onUpdatePermission, permissions}) => {
-    const currentUserId = window.localStorage.id
     const [showRemovePermissionDialog, setShowRemovePermissionDialog] = useState(false)
     const [showEditPermissionDialog, setShowEditPermissionDialog] = useState(false)
     const [showCreatePermissionDialog, setShowCreatePermissionDialog] = useState(false)
@@ -223,8 +220,8 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
                 <Typography variant='h6' width="100%"  color="primary.dark" textAlign={"left"}>
                         PERMISOS
                 </Typography>
-                {role.roleHasPermission &&
-                    role.roleHasPermission.map((roleHasPermission:RoleHasPermission) => 
+                {
+                    role.roleHasPermission?.map((roleHasPermission:RoleHasPermission) => 
                         <Box key={roleHasPermission.permission?.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Typography variant='subtitle1' 
                                         color= "primary.dark" 

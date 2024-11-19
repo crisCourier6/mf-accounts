@@ -1,8 +1,7 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { Button, Box, Alert, CircularProgress} from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from "../api";
-import { useEffect, useState } from 'react';
 // import { DevTool } from '@hookform/devtools';
 
 
@@ -39,7 +38,7 @@ const Activate: React.FC = () => {
         return navigate("/login")
     }
 
-    return (allDone? <>
+    return (allDone? 
             <Box
             sx={{
                 pt: 2,
@@ -73,7 +72,7 @@ const Activate: React.FC = () => {
                 </Button>}
                 </>}
             </Box>
-        </>
+        
         :<CircularProgress/>
     )
 }

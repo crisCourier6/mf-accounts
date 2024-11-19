@@ -1,15 +1,14 @@
-import React from "react";
-import { Button, Box, Alert, Paper, Grid, Backdrop, Dialog, DialogContent, DialogActions, TextField, Snackbar, SnackbarCloseReason, InputAdornment, IconButton, Typography, DialogTitle, FormControlLabel, Checkbox} from '@mui/material';
+import React, {useEffect, useState } from "react";
+import { Button, Box, Alert, Paper, Grid, Dialog, DialogContent, DialogActions, TextField, 
+    Snackbar, SnackbarCloseReason, InputAdornment, IconButton, Typography, DialogTitle, FormControlLabel, Checkbox} from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from "../api";
-import { useEffect, useState } from 'react';
 // import { DevTool } from '@hookform/devtools';
 import { User } from "../interfaces/User";
 import "./Components.css"
 import { useForm } from "react-hook-form";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { watch } from "fs";
 import FoodPrefsIcon from "../svgs/FoodPrefsIcon";
 import HistoryIcon from "../svgs/HistoryIcon";
 import DiaryIcon from "../svgs/DiaryIcon";

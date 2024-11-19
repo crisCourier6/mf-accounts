@@ -1,6 +1,7 @@
 import React from "react";
-import { Button, Box, Alert, Grid, Dialog, DialogContent, DialogActions, TextField, Snackbar, InputAdornment, IconButton, Typography, DialogTitle, Tooltip, FormGroup, FormControlLabel, Checkbox} from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Button, Box, Alert, Grid, Dialog, DialogContent, DialogActions, TextField, 
+    Snackbar, InputAdornment, IconButton, Typography, DialogTitle, Tooltip, FormGroup, FormControlLabel, Checkbox} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import api from "../api";
 import { useEffect, useState } from 'react';
 import { DataGrid, GridColDef, GridEventListener, GridFilterModel, GridRenderCellParams, GridToolbar } from "@mui/x-data-grid"
@@ -14,7 +15,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import AddIcon from '@mui/icons-material/Add';
 import { User } from "../interfaces/User"
 import { Role } from "../interfaces/Role";
-import { UserHasRole } from "../interfaces/userHasRole";
+import { UserHasRole } from "../interfaces/UserHasRole";
  
 type FormValues = {
     name: string
@@ -31,7 +32,6 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
     const rolesURL = "/roles"
     const [users, setUsers] = useState<User[]>([{id:""}])
     const [roles, setRoles] = useState<Role[]>([])
-    const [reloadUsers, setReloadUsers] = useState(false)
     const [showChangeRolesDialog, setShowChangeRolesDialog] = useState(false)
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -64,28 +64,28 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
 
     useEffect(()=>{
         document.title = "Usuarios - EF Admin";
-        try {
-            api.get(`${usersURL}${queryParams}`, {
-                withCredentials: true,
-                headers: {
-                    Authorization: "Bearer " + window.localStorage.token
-                }
-            })
-            .then((res)=>{
-                const transformedUsers = res.data.map((user: any) => (
-                    {
-                    ...user,
-                    createdAt: new Date(user.createdAt), // Convert `createdAt` to a Date object
-                    lastLogin: new Date(user.lastLogin),
-                    updatedAt: new Date(user.updatedAt),
-                    activationExpire: new Date(user.activationExpire),
-                }));
-                setUsers(transformedUsers);       
-            })
-        }
-        catch (error){
+        
+        api.get(`${usersURL}${queryParams}`, {
+            withCredentials: true,
+            headers: {
+                Authorization: "Bearer " + window.localStorage.token
+            }
+        })
+        .then((res)=>{
+            const transformedUsers = res.data.map((user: any) => (
+                {
+                ...user,
+                createdAt: new Date(user.createdAt), // Convert `createdAt` to a Date object
+                lastLogin: new Date(user.lastLogin),
+                updatedAt: new Date(user.updatedAt),
+                activationExpire: new Date(user.activationExpire),
+            }));
+            setUsers(transformedUsers);       
+        })
+        .catch(error => {
             console.log(error)
-        }
+        })
+
     },[])
 
     useEffect(()=>{
@@ -194,21 +194,24 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
       };
 
       const handleDelete = async (id: string) => {
-        try {
-            await api.delete(`http://192.168.100.6:8080/users/${id}`, {
-                withCredentials: true,
-                headers: {
-                    Authorization: "Bearer " + window.localStorage.token
-                }
-            });
+        
+        api.delete(`http://192.168.100.6:8080/users/${id}`, {
+            withCredentials: true,
+            headers: {
+                Authorization: "Bearer " + window.localStorage.token
+            }
+        })
+        .then(res => {
             setUsers(users.filter((user: User) => user.id !== id));
             setSnackbarMsg('Usuario eliminado.');
-        } catch (error) {
+        })
+        .catch (error => {
             setSnackbarMsg('Error al intentar eliminar usuario');
-        } finally {
+        }) 
+        .finally(()=> {
             setOpenDeleteDialog(false);
             setSnackbarOpen(true);
-        }
+        })
     };
 
     const handleEdit = (user: any) => {
@@ -225,85 +228,79 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
     };
 
     const handleCreateTech = (data: FormValues) => {
-       
-        try {
-            api.post(usersURL, {
-                name: data.name,
-                email: data.email,
-                pass: data.pass,
-                profilePic: "default_profile.png",
-                userRole: data.roles
-            }, {withCredentials: true,
-                headers: {
-                    Authorization: "Bearer " + window.localStorage.token
-                }
-            })
-            .then((res)=>{
-                if(res.data.name){
-                    setUsers((prevUsers) => [...prevUsers,
-                        {
-                            ...res.data, 
-                            createdAt: new Date(res.data.createdAt),
-                            lastLogin: new Date(res.data.lastLogin),
-                            updatedAt: new Date(res.data.updatedAt),
-                            activationExpire: new Date(res.data.activationExpire),
-                        }
-                    ]);
-                    setSnackbarMsg("Técnico creado con éxito")   
-                    setOpenNewTechDialog(false)
-                }                
-            })
-        }
-        catch (error) {
+        api.post(usersURL, {
+            name: data.name,
+            email: data.email,
+            pass: data.pass,
+            profilePic: "default_profile.png",
+            userRole: data.roles
+        }, {withCredentials: true,
+            headers: {
+                Authorization: "Bearer " + window.localStorage.token
+            }
+        })
+        .then((res)=>{
+            if(res.data.name){
+                setUsers((prevUsers) => [...prevUsers,
+                    {
+                        ...res.data, 
+                        createdAt: new Date(res.data.createdAt),
+                        lastLogin: new Date(res.data.lastLogin),
+                        updatedAt: new Date(res.data.updatedAt),
+                        activationExpire: new Date(res.data.activationExpire),
+                    }
+                ]);
+                setSnackbarMsg("Técnico creado con éxito")   
+                setOpenNewTechDialog(false)
+            }                
+        })
+        .catch(error => {
             setSnackbarMsg("Error al crear técnico")   
             setOpenNewTechDialog(false)
-        }
-        finally{
+        })
+        .finally(()=> {
             setSnackbarOpen(true)
-        }
+        })
     }
 
 
     const handleStateChange = (id:string, newState: string) => {
-        try {
-            api.patch(`${usersURL}/${id}`,
-                {
-                    isActive:newState==="Active"?true:false,
-                    isPending:false
-                }, 
-                {
-                    withCredentials: true,
-                    headers: {
-                        Authorization: "Bearer " + window.localStorage.token
-                    }
+        api.patch(`${usersURL}/${id}`,
+            {
+                isActive:newState==="Active"?true:false,
+                isPending:false
+            }, 
+            {
+                withCredentials: true,
+                headers: {
+                    Authorization: "Bearer " + window.localStorage.token
                 }
-            )
-            .then((res)=>{     
-                const updatedUsers:any = users.map((user:any) => 
-                    user.id === id ? { 
-                        ...user, 
-                        isActive: newState==="Active"?true:false, 
-                        isPending: false
-                     } : user
-                );
-                setUsers(updatedUsers);
-                if (selectedUser?.id === id) {
-                    setSelectedUser((prevUser:any) => ({
-                        ...prevUser,
-                        isActive: newState==="Active"?true:false,
-                        isPending: false
-                    }));
-                }
-            })
-            
-        }
-        catch (error){
+            }
+        )
+        .then((res)=>{     
+            const updatedUsers:any = users.map((user:any) => 
+                user.id === id ? { 
+                    ...user, 
+                    isActive: newState==="Active"?true:false, 
+                    isPending: false
+                    } : user
+            );
+            setUsers(updatedUsers);
+            if (selectedUser?.id === id) {
+                setSelectedUser((prevUser:any) => ({
+                    ...prevUser,
+                    isActive: newState==="Active"?true:false,
+                    isPending: false
+                }));
+            }
+        })
+        .catch (error => {
             console.log(error)
-        }
-        finally{
+        })
+        .finally(()=>{
             setSnackbarMsg(newState==="Active"?'Cuenta activada correctamente':'Cuenta desactivada correctamente');
             setSnackbarOpen(true)
-        }
+        })
        
     };
 
@@ -513,6 +510,14 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                             <Button onClick={() => handleDelete(selectedUser?.id)} disabled={reason===""} variant="contained" color="primary">
                                 Sí
                             </Button>
+                            <TextField 
+                            value={reason} 
+                            label="Razón de rechazo"  
+                            variant="standard"
+                            onChange={(e) => setReason(e.target.value)}
+                            multiline
+                            rows={2}
+                            />
                         </DialogActions>
                     </Dialog>
                     <Dialog open={openEditDialog} onClose={handleCloseEditDialog}>

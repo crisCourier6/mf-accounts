@@ -1,9 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Box, TextField, Alert, InputAdornment, IconButton} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form"
 import api from "../api";
-import { useState } from 'react';
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 // import { DevTool } from '@hookform/devtools';
@@ -28,7 +27,7 @@ const Login: React.FC = () => {
     const [showError, setShowError] = useState(false);
     const [errorText, setErrorText] = useState("")
     const url = "/auth/login"
-    const { register, handleSubmit, formState, control } = form
+    const { register, handleSubmit, formState } = form
     const {errors} = formState
     const [showPass, setShowPass] = useState(false)
     const queryParams = "?r=Core"
@@ -52,9 +51,15 @@ const Login: React.FC = () => {
                 window.localStorage.setItem("email", res.data.email)
                 window.localStorage.setItem("token", res.data.token)
                 window.localStorage.setItem("roles", res.data.roles)
-                res.data.externalId?window.localStorage.setItem("g_auth", res.data.externalId):null
-                res.data.expertProfile?window.localStorage.e_id = res.data.expertProfile.id:null
-                res.data.storeProfile?window.localStorage.s_id = res.data.storeProfile.id:null
+                if (res.data.externalId){
+                    window.localStorage.setItem("g_auth", res.data.externalId)
+                }
+                if (res.data.expertProfile){
+                    window.localStorage.setItem("e_id", res.data.expertProfile.id)
+                }
+                if (res.data.storeProfile){
+                    window.localStorage.setItem("s_id", res.data.storeProfile.id)
+                }
                 return navigate("/home")
             }
             setShowError(true)

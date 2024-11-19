@@ -1,10 +1,8 @@
-import React, { useEffect } from "react";
-import { Button, Box, TextField, Alert, Paper, Typography} from '@mui/material';
+import React, { useEffect, useState } from "react";
+import { Button, Paper, Typography} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from "react-hook-form"
 import api from "../api";
-import { useState } from 'react';
-import { googleLogout, useGoogleLogin, GoogleLogin } from "@react-oauth/google"
+import { googleLogout, useGoogleLogin } from "@react-oauth/google"
 import GoogleIcon from '@mui/icons-material/Google';
 
 type GoogleUser = {
@@ -21,24 +19,23 @@ type GoogleUser = {
 const GoogleAuth: React.FC = () => {
     const navigate = useNavigate()
     const [tokens, setTokens] = useState<any>(null)
-    const [user, setUser] = useState<any>(null)
     const [profile, setProfile] = useState<any>(null)
+    const [googleResponse, setGoogleResponse] = useState<any>(null)
     const tokensURL = "/auth/login/tokens"
     const url = "/auth/login/google"
 
     const login = useGoogleLogin({
-        onSuccess: async (codeResponse) => {
-            try{
-                const response = await api.post(tokensURL, {
-                    code: codeResponse.code
-                })
-                setTokens(response.data);  
-            }
-            catch(error){
-                console.log("Error al iniciar sesión con Google")
-            }
+        onSuccess: codeResponse => setGoogleResponse(codeResponse),
+            // try{
+            //     const response = await api.post(tokensURL, {
+            //         code: codeResponse.code
+            //     })
+            //     setTokens(response.data);  
+            // }
+            // catch(error){
+            //     console.log("Error al iniciar sesión con Google")
+            // }
             
-        },
         onError: (error) => console.log("login failed", error),
         scope: "https://www.googleapis.com/auth/tasks",
         flow: "auth-code"
@@ -49,6 +46,18 @@ const GoogleAuth: React.FC = () => {
         googleLogout();
         setProfile(null);
     };
+
+    useEffect(()=>{
+        api.post(tokensURL, {
+            code: googleResponse.code
+        })
+        .then(res => {
+            setTokens(res.data)
+        })
+        .catch(error => {
+            console.log("Error al inicar sesión con Google")
+        })
+    }, [googleResponse])
 
     useEffect(() => {
         if (tokens) {
@@ -89,7 +98,7 @@ const GoogleAuth: React.FC = () => {
                     </>
                 )
                 :(
-                    <>
+               
                         <Button onClick={() => login()}
                         sx={{
                             border: "3px solid",
@@ -109,7 +118,7 @@ const GoogleAuth: React.FC = () => {
                             <Typography>Ingresar con Google</Typography>
                             <GoogleIcon sx={{color: "#4285F4"}}></GoogleIcon>
                         </Button>
-                    </>
+             
                 )
                 }
             </>

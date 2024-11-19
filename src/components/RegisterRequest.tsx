@@ -1,12 +1,11 @@
-import React from "react";
-import { Button, Box, TextField, Backdrop, Dialog, DialogContent, DialogContentText, DialogActions, InputAdornment, IconButton, Alert, Snackbar, FormControlLabel, Checkbox, Typography, Grid} from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Button, Box, TextField, Backdrop, Dialog, DialogContent, DialogContentText, DialogActions, 
+    InputAdornment, IconButton, Alert, FormControlLabel, Checkbox, Typography, Grid} from '@mui/material';
+import {useNavigate} from 'react-router-dom';
 import { useForm } from "react-hook-form"
 import api from "../api";
-import { useEffect, useState } from 'react';
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { CheckBox } from "@mui/icons-material";
 // import { DevTool } from '@hookform/devtools';
 
 type FormValues = {
@@ -31,7 +30,7 @@ const RegisterRequest: React.FC = () => {
     const queryParams = url.searchParams;
     const userType = queryParams.get('u');
     const navigate = useNavigate()
-    const [file, setFile] = useState(null)
+    // const [file, setFile] = useState(null)
     const form = useForm<FormValues>({
         mode: "onBlur",
         reValidateMode: "onBlur",
@@ -52,14 +51,14 @@ const RegisterRequest: React.FC = () => {
         }
     })    
     const [showRegisterSuccess, setShowRegisterSuccess] = useState(false)
-    const [showPasswordHint, setShowPasswordHint] = useState(false)
+    // const [showPasswordHint, setShowPasswordHint] = useState(false)
     const [showError, setShowError] = useState(false);
     const [errorText, setErrorText] = useState("")
     const [showPass, setShowPass] = useState(false)
     const [showConfirmPass, setShowConfirmPass] = useState(false)
     const registerURL = "/auth/signup"
 
-    const { register, handleSubmit, formState, control, getValues, watch } = form
+    const { register, handleSubmit, formState, watch } = form
     const {errors} = formState
 
     useEffect(() => {
@@ -96,13 +95,13 @@ const RegisterRequest: React.FC = () => {
         setShowRegisterSuccess(!showRegisterSuccess)
     }
 
-    const handlePasswordhint = () => {
-        setShowPasswordHint(!showPasswordHint)
-    }
+    // const handlePasswordhint = () => {
+    //     setShowPasswordHint(!showPasswordHint)
+    // }
 
-    const handleFile = (newFile : any) => {
-        setFile(newFile)
-      }
+    // const handleFile = (newFile : any) => {
+    //     setFile(newFile)
+    //   }
 
     return  <Grid container 
     display="flex" 

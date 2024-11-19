@@ -1,13 +1,8 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState }  from 'react';
 import api from '../api';
-import { Box, Card, CardContent, CardMedia, Grid, IconButton, Paper, Typography, RadioGroup, FormControlLabel, Radio, ToggleButtonGroup, ToggleButton, Alert, Backdrop, Button, Dialog, DialogActions, DialogContent, InputAdornment, TextField, Snackbar, SnackbarCloseReason, CardActions, DialogTitle, Tooltip } from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
-import { CircularProgress } from "@mui/material";
-import InsertLinkRoundedIcon from '@mui/icons-material/InsertLinkRounded';
-import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
+import { Box, Card, CardContent, Grid, IconButton, Typography, Alert, Button, Dialog, 
+    DialogActions, DialogContent, TextField, Snackbar, SnackbarCloseReason, CardActions, DialogTitle, Tooltip, CircularProgress } from '@mui/material';
 import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
-import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { Role } from '../interfaces/Role';
@@ -21,12 +16,10 @@ type RoleValues = {
 }
 
 const RoleList: React.FC<{ isAppBarVisible: boolean }> = ({ isAppBarVisible }) => {
-    const navigate = useNavigate()
     const rolesURL = "/roles"
     const permissionsURL = "/permissions"
     const [roles, setRoles] = useState<Role[]>([])
     const [permissions, setPermissions] = useState<Permission[]>([])
-    const currentUserId = window.localStorage.id;
     const [showEditForm, setShowEditForm] = useState(false)
     const [showCreateForm, setShowCreateForm] = useState(false)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)

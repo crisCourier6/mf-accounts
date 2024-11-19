@@ -1,42 +1,17 @@
-import React from "react";
-import { Button, Box, Alert, Paper, Grid, Backdrop, Dialog, DialogContent, DialogActions, TextField, Snackbar, SnackbarCloseReason, InputAdornment, IconButton, Typography} from '@mui/material';
+import React, { useEffect, useState } from "react";
+import { Box, Paper, Grid, SnackbarCloseReason, Typography} from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import api from "../api";
-import { useEffect, useState } from 'react';
 // import { DevTool } from '@hookform/devtools';
 import "./Components.css"
 import { User } from "../interfaces/User";
 
 const UserAccountEdit: React.FC<{selectedUser:User}> = (params) => {
-    const navigate = useNavigate()
     const [user, setUser] = useState<User>({id:""})
-    const [successOpen, setSuccessOpen] = useState(false)
-    const [passErrorOpen, setPassErrorOpen] = useState(false)
-    const [isActive, setIsActive] = useState<boolean | undefined>(false)
-    const [isSuspended, setIsSuspended] = useState<boolean | undefined>(false)
-    const [isPending, setIsPending] = useState<boolean | undefined>(false)
 
     const url = "/users/" + params.selectedUser.id
     useEffect(()=>{
        setUser(params.selectedUser)
     },[params])
-
-    useEffect(()=>{
-        setIsActive(user.isActive)
-        setIsSuspended(user.isSuspended)
-        setIsPending(user.isPending)
-    },[user])
-
-    const handleSuccessClose = (
-        event: React.SyntheticEvent | Event,
-        reason?: SnackbarCloseReason,
-      ) => {
-        if (reason === 'clickaway') {
-          return;
-        }
-    
-        setSuccessOpen(false);
-      }
 
     return <Grid container 
             display="flex" 
