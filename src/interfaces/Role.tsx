@@ -1,5 +1,5 @@
 import { RoleHasPermission } from "./RoleHasPermission"
-import { UserHasRole } from "./userHasRole"
+import { UserHasRole } from "./UserHasRole"
 export interface Role {
     id: string
     name: string

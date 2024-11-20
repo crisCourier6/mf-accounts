@@ -1,6 +1,6 @@
 import { Expert } from "./Expert";
 import { Store } from "./Store";
-import { UserHasRole } from "./userHasRole";
+import { UserHasRole } from "./UserHasRole";
 
 export interface User {
     id: string,

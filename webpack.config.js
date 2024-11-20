@@ -1,13 +1,16 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { ModuleFederationPlugin } = require("webpack").container;
 const { dependencies } = require("./package.json");
+const dotenv = require("dotenv")
+const webpack = require("webpack")
+dotenv.config()
       
       module.exports = {
         entry: "./src/entry",
         mode: "development",
         devServer: {
-          port: 4001, // Modificar
-          host: "0.0.0.0",
+          port: process.env.REACT_APP_PORT, // Modificar
+          host: process.env.REACT_APP_HOST,
           allowedHosts: 'all',
           historyApiFallback: true, // Necesario para que funcione React Router
           client: {
@@ -57,6 +60,9 @@ const { dependencies } = require("./package.json");
           ],
         },
         plugins: [
+          new webpack.DefinePlugin({
+            "process.env.REACT_APP_GATEWAY_URL": JSON.stringify(process.env.REACT_APP_GATEWAY_URL),
+          }),
           new HtmlWebpackPlugin({
             template: "./public/index.html",
           }),
@@ -91,12 +97,12 @@ const { dependencies } = require("./package.json");
           }),
         ],
         output: {
-          publicPath: "http://localhost:4001/", // Necesario para rutas anidadas (/path/nested-path)
+          publicPath: `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/`, // Necesario para rutas anidadas (/path/nested-path)
         },
         resolve: {
           extensions: [".tsx", ".ts", ".js", ".jsx"],
         },
         target: "web",
       };
-      
+      console.log(process.env.REACT_APP_GATEWAY_URL)
       // Solo modificar las lineas que tienen comentarios
