@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { DataGrid, GridColDef, GridEventListener, GridFilterModel, GridRenderCellParams, GridToolbar } from "@mui/x-data-grid"
 import { esES } from '@mui/x-data-grid/locales';
 import { useForm } from "react-hook-form";
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
 import EditIcon from '@mui/icons-material/Edit';
 import UserAccountEdit from "./UserAccountEdit";
 import Visibility from "@mui/icons-material/Visibility";
@@ -30,6 +30,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
     const navigate = useNavigate()
     const usersURL = "/users"
     const rolesURL = "/roles"
+    const token = window.sessionStorage.token || window.localStorage.token
     const [users, setUsers] = useState<User[]>([{id:""}])
     const [roles, setRoles] = useState<Role[]>([])
     const [showChangeRolesDialog, setShowChangeRolesDialog] = useState(false)
@@ -68,7 +69,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
         api.get(`${usersURL}${queryParams}`, {
             withCredentials: true,
             headers: {
-                Authorization: "Bearer " + window.localStorage.token
+                Authorization: "Bearer " + token
             }
         })
         .then((res)=>{
@@ -92,7 +93,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
         api.get(`${rolesURL}`, {
             withCredentials: true,
             headers: {
-                Authorization: "Bearer " + window.localStorage.token
+                Authorization: "Bearer " + token
             }
         })
         .then(res => {
@@ -176,7 +177,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                         <IconButton color="error" onClick={() => {
                             setSelectedUser(params.row);
                             setOpenDeleteDialog(true);}}>
-                            <DeleteIcon />
+                            <DeleteForeverRoundedIcon />
                         </IconButton>
                     </Tooltip>
                     
@@ -198,7 +199,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
         api.delete(`http://192.168.100.6:8080/users/${id}`, {
             withCredentials: true,
             headers: {
-                Authorization: "Bearer " + window.localStorage.token
+                Authorization: "Bearer " + token
             }
         })
         .then(res => {
@@ -236,7 +237,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
             userRole: data.roles
         }, {withCredentials: true,
             headers: {
-                Authorization: "Bearer " + window.localStorage.token
+                Authorization: "Bearer " + token
             }
         })
         .then((res)=>{
@@ -273,7 +274,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
             {
                 withCredentials: true,
                 headers: {
-                    Authorization: "Bearer " + window.localStorage.token
+                    Authorization: "Bearer " + token
                 }
             }
         )
@@ -312,7 +313,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
             {
                 withCredentials: true,
                 headers: {
-                    Authorization: "Bearer " + window.localStorage.token
+                    Authorization: "Bearer " + token
                 }
             }
         )
@@ -375,7 +376,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
             }, {
                 withCredentials: true,
                 headers: {
-                    Authorization: "Bearer " + window.localStorage.token
+                    Authorization: "Bearer " + token
                 }
             }
         )

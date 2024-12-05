@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Button, Box, TextField, Backdrop, Dialog, DialogContent, DialogContentText, DialogActions, 
-    InputAdornment, IconButton, Alert, FormControlLabel, Checkbox, Typography, Grid} from '@mui/material';
+    InputAdornment, IconButton, Alert, FormControlLabel, Checkbox, Typography, Grid,
+    List,
+    ListItem,
+    ListItemText,
+    FormHelperText} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import { useForm } from "react-hook-form"
 import api from "../api";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 // import { DevTool } from '@hookform/devtools';
 
 type FormValues = {
@@ -61,6 +67,27 @@ const RegisterRequest: React.FC = () => {
     const { register, handleSubmit, formState, watch } = form
     const {errors} = formState
 
+    const password = watch("pass")
+
+    const passwordRequirements = [
+        {
+          text: "Mínimo 8 caracteres",
+          valid: password?.length >= 8,
+        },
+        {
+          text: "Al menos una letra mayúscula",
+          valid: /[A-Z]/.test(password || ""),
+        },
+        {
+          text: "Al menos una letra minúscula",
+          valid: /[a-z]/.test(password || ""),
+        },
+        {
+          text: "Al menos un número",
+          valid: /\d/.test(password || ""),
+        },
+      ];
+
     useEffect(() => {
         document.title = "Solicitud de cuenta - EyesFood";
     }, []); // Empty dependency array to ensure it runs only once on mount
@@ -115,6 +142,11 @@ const RegisterRequest: React.FC = () => {
             <Typography variant="h5" my={2}>
                 Registro de {userType==="expert"?"nutricionista":"tienda"}
             </Typography>
+            <Button onClick={()=>navigate("/")}>
+                <Typography variant="subtitle2" sx={{textDecoration: "underline"}}>
+                    Volver a inicio de sesión
+                </Typography>
+            </Button>
             <TextField 
                 sx={{my:1}}
                 id="name" 
@@ -134,7 +166,13 @@ const RegisterRequest: React.FC = () => {
                 type="email" 
                 variant="standard" 
                 fullWidth
-                {...register("email", {required: "Ingresar email"})}
+                {...register("email", {
+                    required: "Ingresar email",
+                    pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Formato de email inválido"
+                    }
+                })}
                 error={!!errors.email}
                 helperText = {errors.email?.message}
             />
@@ -173,6 +211,30 @@ const RegisterRequest: React.FC = () => {
                     ),
                 }}
             />
+
+{password && (
+                <List>
+                    {passwordRequirements.map((req, index) => (
+                    <ListItem key={index} disableGutters>
+                        {req.valid ? (
+                        <CheckCircleRoundedIcon color="success" fontSize="small" sx={{ mr: 1 }} />
+                        ) : (
+                        <CancelRoundedIcon color="error" fontSize="small" sx={{ mr: 1 }} />
+                        )}
+                        <ListItemText
+                        primary={
+                            <Typography
+                            variant="subtitle2"
+                            color={req.valid ? "success.main" : "error.main"}
+                            >
+                            {req.text}
+                            </Typography>
+                        }
+                        />
+                    </ListItem>
+                    ))}
+                </List>
+                )}
 
             <TextField 
                 sx={{my:1}}
@@ -228,24 +290,27 @@ const RegisterRequest: React.FC = () => {
             />
 
             <TextField 
-                sx={{my:1}}
+                sx={{ my: 1 }}
                 id="phone" 
                 label="Teléfono" 
                 type="tel" 
                 variant="standard" 
                 fullWidth
                 inputProps={{
-                    maxLength: 15, // Length for the pattern "+56 9 1234 5678"
+                    maxLength: 15, // Enforces a maximum input length
                 }}
                 {...register("phone", {
                     pattern: {
-                        value: /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,
-                        message: "Formato incorrecto"
-                    }    
+                        value: /^\+56\s?(2|9)\s?\d{4}(\d{4}|\s?\d{4})$/,
+                        message: "Formato incorrecto",
+                    }
                 })}
                 error={!!errors.phone}
-                helperText = {errors.phone?.message}
+                helperText={errors.phone?.message || ""}
             />
+            <FormHelperText>
+                ej: +56 9 1234 5678
+            </FormHelperText>
 
             <TextField 
                 sx={{my:1}}

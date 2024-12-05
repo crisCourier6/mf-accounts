@@ -70,7 +70,7 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
             }, {
                 withCredentials: true,
                 headers: {
-                    Authorization: "Bearer " + window.localStorage.token
+                    Authorization: "Bearer " + window.sessionStorage.token || window.localStorage.token
                 }
             }
         )
@@ -94,7 +94,7 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
         api.post(`${permissionsURL}`, data, {
             withCredentials: true,
             headers: {
-                Authorization: "Bearer " + window.localStorage.token
+                Authorization: "Bearer " + window.sessionStorage.token || window.localStorage.token
             }
         })
         .then((res) => {
@@ -129,7 +129,7 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
             api.patch(`${permissionsURL}/${selectedPermission.id}`, data, {
                 withCredentials: true,
                 headers: {
-                    Authorization: "Bearer " + window.localStorage.token
+                    Authorization: "Bearer " + window.sessionStorage.token || window.localStorage.token
                 }
             })
             .then(res=>{
@@ -152,7 +152,7 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
             api.delete(`${permissionsURL}/${selectedPermission.id}`, {
                 withCredentials: true,
                 headers: {
-                    Authorization: "Bearer " + window.localStorage.token
+                    Authorization: "Bearer " + window.sessionStorage.token || window.localStorage.token
                 }
             })
             .then(res => {

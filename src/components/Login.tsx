@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Box, TextField, Alert, InputAdornment, IconButton} from '@mui/material';
+import { Button, Box, TextField, Alert, InputAdornment, IconButton, FormGroup, FormControlLabel, Checkbox, CircularProgress} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form"
 import api from "../api";
@@ -29,7 +29,9 @@ const Login: React.FC = () => {
     const url = "/auth/login"
     const { register, handleSubmit, formState } = form
     const {errors} = formState
+    const [keepLogin, setKeepLogin] = useState(false)
     const [showPass, setShowPass] = useState(false)
+    const [loggingIn, setLoggingIn] = useState(false)
     const queryParams = "?r=Core"
 
     useEffect(() => {
@@ -37,6 +39,7 @@ const Login: React.FC = () => {
     }, []); // Empty dependency array to ensure it runs only once on mount
 
     const onSubmit = (data: FormValues) => {
+        setLoggingIn(true)
         api.post(`${url}${queryParams}`, {
             email: data.email,
             pass: data.password
@@ -45,7 +48,7 @@ const Login: React.FC = () => {
         })
         .then((res)=>{
             console.log(res.data)
-            if(res.data.name){
+            if(keepLogin){
                 window.localStorage.setItem("id", res.data.id)
                 window.localStorage.setItem("name", res.data.name)
                 window.localStorage.setItem("email", res.data.email)
@@ -62,12 +65,29 @@ const Login: React.FC = () => {
                 }
                 return navigate("/home")
             }
-            setShowError(true)
+            else{
+                window.sessionStorage.setItem("id", res.data.id)
+                window.sessionStorage.setItem("name", res.data.name)
+                window.sessionStorage.setItem("email", res.data.email)
+                window.sessionStorage.setItem("token", res.data.token)
+                window.sessionStorage.setItem("roles", res.data.roles)
+                if (res.data.externalId){
+                    window.sessionStorage.setItem("g_auth", res.data.externalId)
+                }
+                if (res.data.expertProfile){
+                    window.sessionStorage.setItem("e_id", res.data.expertProfile.id)
+                }
+                if (res.data.storeProfile){
+                    window.sessionStorage.setItem("s_id", res.data.storeProfile.id)
+                }
+                return navigate("/home")
+            }
             
         }).catch((error) => {
             console.log(error)
             setShowError(true)
             setErrorText(error.response.data.message)
+            setLoggingIn(false)
         })
 
     }
@@ -124,7 +144,14 @@ const Login: React.FC = () => {
                 fullWidth
             />
 
-            <Button type="submit" variant="contained" sx={{width: "100%"}} > Iniciar sesión</Button>
+            <FormGroup>
+                <FormControlLabel control={<Checkbox checked={keepLogin} onChange={()=>setKeepLogin(!keepLogin)}/>} label="Mantener sesión iniciada" />
+            </FormGroup>
+
+            {loggingIn
+                ?<CircularProgress/>
+                :<Button type="submit" variant="contained" sx={{width: "100%"}} > Iniciar sesión</Button>
+            }
             
             <Alert severity="error" sx={{display: showError?null:"none"}} >{errorText}</Alert>
         

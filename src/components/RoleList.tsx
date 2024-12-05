@@ -18,6 +18,7 @@ type RoleValues = {
 const RoleList: React.FC<{ isAppBarVisible: boolean }> = ({ isAppBarVisible }) => {
     const rolesURL = "/roles"
     const permissionsURL = "/permissions"
+    const token = window.sessionStorage.token || window.localStorage.token
     const [roles, setRoles] = useState<Role[]>([])
     const [permissions, setPermissions] = useState<Permission[]>([])
     const [showEditForm, setShowEditForm] = useState(false)
@@ -46,14 +47,14 @@ const RoleList: React.FC<{ isAppBarVisible: boolean }> = ({ isAppBarVisible }) =
         const fetchRoles = api.get(`${rolesURL}${queryParams}`, {
             withCredentials: true,
             headers: {
-                Authorization: "Bearer " + window.localStorage.token
+                Authorization: "Bearer " + token
             }
         })
 
         const fecthPermissions = api.get(`${permissionsURL}`, {
             withCredentials: true,
             headers: {
-                Authorization: "Bearer " + window.localStorage.token
+                Authorization: "Bearer " + token
             }
         })
 
@@ -126,7 +127,7 @@ const RoleList: React.FC<{ isAppBarVisible: boolean }> = ({ isAppBarVisible }) =
         api.post(`${rolesURL}`, data, {
             withCredentials: true,
             headers: {
-                Authorization: "Bearer " + window.localStorage.token
+                Authorization: "Bearer " + token
             }
         })
         .then((res) => {
@@ -148,7 +149,7 @@ const RoleList: React.FC<{ isAppBarVisible: boolean }> = ({ isAppBarVisible }) =
         api.patch(`${rolesURL}/${selectedRole?.id}`, data, {
             withCredentials: true,
             headers: {
-                Authorization: "Bearer " + window.localStorage.token
+                Authorization: "Bearer " + token
             }
         })
         .then((res) => {
@@ -173,7 +174,7 @@ const RoleList: React.FC<{ isAppBarVisible: boolean }> = ({ isAppBarVisible }) =
         api.delete(`${rolesURL}/${selectedRole?.id}`, {
             withCredentials: true,
             headers: {
-                Authorization: "Bearer " + window.localStorage.token
+                Authorization: "Bearer " + token
             }
         })
         .then(res => {

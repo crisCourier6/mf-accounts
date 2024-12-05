@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Button, Box, TextField, Alert, InputAdornment, IconButton, RadioGroup, FormControlLabel, Radio, Grid} from '@mui/material';
+import { Button, Box, TextField, Alert, InputAdornment, IconButton, RadioGroup, FormControlLabel, Radio, Grid, FormGroup, Checkbox} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form"
 import api from "../api";
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { CheckBox } from "@mui/icons-material";
 // import { DevTool } from '@hookform/devtools';
 
 type FormValues = {
@@ -27,6 +28,7 @@ const LoginAdmin: React.FC = () => {
     const url = "/auth/login"
     const { register, handleSubmit, formState } = form
     const {errors} = formState
+    const [keepLogin, setKeepLogin] = useState(false)
     const [showPass, setShowPass] = useState(false)
     const [selectedRole, setSelectedRole] = useState<string>('Admin'); // Default selected role
     
@@ -40,7 +42,7 @@ const LoginAdmin: React.FC = () => {
             pass: data.password
         }, {withCredentials: true})
         .then((res)=>{
-            if(res.data.name){
+            if(keepLogin){
                 window.localStorage.setItem("id", res.data.id)
                 window.localStorage.setItem("name", res.data.name)
                 window.localStorage.setItem("email", res.data.email)
@@ -48,7 +50,15 @@ const LoginAdmin: React.FC = () => {
                 window.localStorage.setItem("role", selectedRole)
                 return navigate(`/home`)
             }
-            setShowError(true)
+            else{
+                window.sessionStorage.setItem("id", res.data.id)
+                window.sessionStorage.setItem("name", res.data.name)
+                window.sessionStorage.setItem("email", res.data.email)
+                window.sessionStorage.setItem("token", res.data.token)
+                window.sessionStorage.setItem("role", selectedRole)
+                return navigate(`/home`)
+            }
+            
             
         }).catch((error) => {
             setShowError(true)
@@ -114,29 +124,32 @@ const LoginAdmin: React.FC = () => {
                 sx={{width:"100%", maxWidth: "400px"}}
             />
             
-                <RadioGroup
-                    row
-                    value={selectedRole}
-                    onChange={(e) => setSelectedRole(e.target.value)
-                    }
+            <RadioGroup
+                row
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value)
+                }
+            >
+                <Box
+                sx={{
+                    py: 2,
+                    display: "flex",
+                    justifyContent: "space-evenly",
+                    flexDirection: "row",
+                    gap: 2,
+                    width:"100%",
+                    flexWrap: "wrap",
+                }}     
                 >
-                    <Box
-                    sx={{
-                        py: 2,
-                        display: "flex",
-                        justifyContent: "space-evenly",
-                        flexDirection: "row",
-                        gap: 2,
-                        width:"100%",
-                        flexWrap: "wrap",
-                    }}     
-                    >
-                        <FormControlLabel value="Admin" control={<Radio />} label="Admin" />
-                        <FormControlLabel value="Tech" control={<Radio />} label="Técnico" />
-                        <FormControlLabel value="Expert" control={<Radio />} label="Experto" />
-                        <FormControlLabel value="Store" control={<Radio />} label="Tienda" />
-                    </Box>
-                </RadioGroup>
+                    <FormControlLabel value="Admin" control={<Radio />} label="Admin" />
+                    <FormControlLabel value="Tech" control={<Radio />} label="Técnico" />
+                    <FormControlLabel value="Expert" control={<Radio />} label="Experto" />
+                    <FormControlLabel value="Store" control={<Radio />} label="Tienda" />
+                </Box>
+            </RadioGroup>
+            <FormGroup>
+                <FormControlLabel control={<Checkbox checked={keepLogin} onChange={()=>setKeepLogin(!keepLogin)}/>} label="Mantener sesión iniciada" />
+            </FormGroup>
 
             <Button type="submit" variant="contained" sx={{width: "100%"}} > Iniciar sesión</Button>
             

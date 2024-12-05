@@ -41,6 +41,9 @@ type ExpertValues = {
 const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ isAppBarVisible, onReady }) => {
     const navigate = useNavigate()
     const { id } = useParams()
+    const token = window.sessionStorage.getItem("token") || window.localStorage.getItem("token")
+    const s_id = window.sessionStorage.getItem("s_id") || window.localStorage.getItem("s_id")
+    const e_id = window.sessionStorage.getItem("e_id") || window.localStorage.getItem("e_id")
     const passwordForm = useForm<PasswordValues>({
         mode: "onBlur",
         reValidateMode: "onBlur",
@@ -102,7 +105,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
         api.get(url, {
             withCredentials: true,
             headers: {
-                Authorization: "Bearer " + window.localStorage.token
+                Authorization: "Bearer " + token
             }
         })
         .then((res)=>{
@@ -187,7 +190,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
     ]
 
     const handleStoreCatalogue = () => {
-        navigate("/stores/" + window.localStorage.s_id + "/catalogue")
+        navigate("/stores/" + s_id + "/catalogue")
       }
 
     const handleSnackbarClose = (
@@ -210,14 +213,20 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                         { 
                             withCredentials: true,
                             headers: {
-                                Authorization: "Bearer " + window.localStorage.token
+                                Authorization: "Bearer " + token
                             }
                         }
         )
         .then(res => {
             setShowNameForm(false)
             setUser({...user, name: res.data.name})
-            window.localStorage.name = res.data.name
+            if (window.localStorage.name){
+                window.localStorage.name = res.data.name
+            }
+            else{
+                window.sessionStorage.name = res.data.name
+            }
+            
             setSnackbarMsg("Nombre actualizado!")
            
         })
@@ -236,7 +245,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                         { 
                             withCredentials: true,
                             headers: {
-                                Authorization: "Bearer " + window.localStorage.token
+                                Authorization: "Bearer " + token
                             }
                         }
         )
@@ -257,7 +266,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
         api.patch(`${storesURL}byId/${user.storeProfile?.id}`, data, {
             withCredentials: true,
             headers: {
-                Authorization: "Bearer " + window.localStorage.token
+                Authorization: "Bearer " + token
             }
         })
         .then((res) => {
@@ -280,7 +289,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
         api.patch(`${expertsURL}byId/${user.expertProfile?.id}`, data, {
             withCredentials: true,
             headers: {
-                Authorization: "Bearer " + window.localStorage.token
+                Authorization: "Bearer " + token
             }
         })
         .then((res) => {
@@ -650,7 +659,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                             message: "Mínimo 8 caractéres"
                                         },
                                         pattern: {
-                                            value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/,
+                                            value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
                                             message: "Contraseña inválida"
                                         }
 

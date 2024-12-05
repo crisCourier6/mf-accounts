@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { Button, Box, TextField, Backdrop, Dialog, DialogContent, DialogContentText, DialogActions, InputAdornment, IconButton, Alert } from '@mui/material';
+import { Button, Box, TextField, Backdrop, Dialog, DialogContent, DialogContentText, DialogActions, InputAdornment, IconButton, Alert, List, ListItem, ListItemText, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form"
 import api from "../api";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 // import { DevTool } from '@hookform/devtools';
 
 type FormValues = {
@@ -39,6 +41,27 @@ const Register: React.FC = () => {
 
     const { register, handleSubmit, formState, watch } = form
     const {errors} = formState
+
+    const password = watch("password")
+
+    const passwordRequirements = [
+        {
+          text: "Mínimo 8 caracteres",
+          valid: password?.length >= 8,
+        },
+        {
+          text: "Al menos una letra mayúscula",
+          valid: /[A-Z]/.test(password || ""),
+        },
+        {
+          text: "Al menos una letra minúscula",
+          valid: /[a-z]/.test(password || ""),
+        },
+        {
+          text: "Al menos un número",
+          valid: /\d/.test(password || ""),
+        },
+      ];
 
     const onSubmit = (data: FormValues) => {
         console.log(data)
@@ -108,11 +131,15 @@ const Register: React.FC = () => {
                 width:"100%",
             }}     
             >
-                <Button variant="dark" sx={{fontSize: 13}} onClick={()=>handleRequest("expert")}>
-                    Soy nutricionista
+                <Button onClick={()=>handleRequest("expert")}>
+                    <Typography variant="subtitle1" sx={{textDecoration: "underline"}}>
+                        Soy nutricionista
+                    </Typography>
                 </Button>
-                <Button variant="dark" sx={{fontSize: 13}} onClick={()=>handleRequest("store")}>
-                    Soy dueño de tienda
+                <Button onClick={()=>handleRequest("store")}>
+                    <Typography variant="subtitle1" sx={{textDecoration: "underline"}}>
+                        Soy dueño de tienda
+                    </Typography>
                 </Button>
             </Box>
             
@@ -131,7 +158,13 @@ const Register: React.FC = () => {
                 label="Email" 
                 type="email" 
                 variant="standard" 
-                {...register("email", {required: "Ingresar email"})}
+                {...register("email", {
+                    required: "Ingresar email",
+                    pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Formato de email inválido"
+                    }
+                })}
                 error={!!errors.email}
                 helperText = {errors.email?.message}
             />
@@ -147,7 +180,7 @@ const Register: React.FC = () => {
                                                 message: "Mínimo 8 caractéres"
                                             },
                                             pattern: {
-                                                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/,
+                                                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
                                                 message: "Contraseña inválida"
                                             }
 
@@ -168,6 +201,29 @@ const Register: React.FC = () => {
                     ),
                 }}
             />
+            {password && (
+                <List>
+                    {passwordRequirements.map((req, index) => (
+                    <ListItem key={index} disableGutters>
+                        {req.valid ? (
+                        <CheckCircleRoundedIcon color="success" fontSize="small" sx={{ mr: 1 }} />
+                        ) : (
+                        <CancelRoundedIcon color="error" fontSize="small" sx={{ mr: 1 }} />
+                        )}
+                        <ListItemText
+                        primary={
+                            <Typography
+                            variant="subtitle2"
+                            color={req.valid ? "success.main" : "error.main"}
+                            >
+                            {req.text}
+                            </Typography>
+                        }
+                        />
+                    </ListItem>
+                    ))}
+                </List>
+                )}
 
             <TextField 
                 id="confirmPassword" 
