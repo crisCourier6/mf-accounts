@@ -196,7 +196,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
 
       const handleDelete = async (id: string) => {
         
-        api.delete(`http://192.168.100.6:8080/users/${id}`, {
+        api.delete(`${usersURL}/${id}`, {
             withCredentials: true,
             headers: {
                 Authorization: "Bearer " + token

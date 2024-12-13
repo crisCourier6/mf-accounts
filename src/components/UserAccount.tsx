@@ -14,6 +14,7 @@ import HistoryIcon from "../svgs/HistoryIcon";
 import DiaryIcon from "../svgs/DiaryIcon";
 import FoodEditIcon from "../svgs/FoodEditIcon";
 import StatsIcon from "../svgs/StatsIcon";
+import NotificationManagerIcon from "../svgs/NotificationManagerIcon";
 
 type PasswordValues = {
     pass: string,
@@ -173,6 +174,10 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
         navigate("food-diary")
     }
 
+    const handleNotif = () => {
+        navigate("notifications")
+      }
+
     const handleFoodEdits = () => {
         navigate("food-edits")
     }
@@ -185,8 +190,9 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
         {name: "Preferencias alimenticias", function: handleFoodPrefs, icon: <FoodPrefsIcon width={"100%"} height={"auto"}/>},
         {name: "Historial de alimentos", function: handleFoodHistory, icon: <HistoryIcon width={"100%"} height={"auto"}/>},
         {name: "Diario alimenticio", function: handleFoodDiary, icon: <DiaryIcon width={"100%"} height={"auto"}/>},
-        {name: "Mis Aportes", function: handleFoodEdits, icon: <FoodEditIcon width={"100%"} height={"auto"}/>},
-        {name: "Mis medidas", allowedRoles: ["Core"], function: handleStats, icon: <StatsIcon width='100%' height= 'auto'/>}
+        {name: "Mis aportes", function: handleFoodEdits, icon: <FoodEditIcon width={"100%"} height={"auto"}/>},
+        {name: "Mis medidas", allowedRoles: ["Core"], function: handleStats, icon: <StatsIcon width='100%' height= 'auto'/>},
+        {name: "Notificaciones", allowedRoles: ["Core"], function: handleNotif, icon: <NotificationManagerIcon width='100%' height= 'auto'/>},
     ]
 
     const handleStoreCatalogue = () => {
