@@ -93,17 +93,17 @@ const RegisterRequest: React.FC = () => {
     }, []); // Empty dependency array to ensure it runs only once on mount
 
     const onSubmit = (data: FormValues) => {
-        console.log(data)
+        // console.log(data)
         api.post(registerURL, {
             ...data,
             profilePic: "default_profile.png",
         }, {withCredentials: true})
         .then((res)=>{
             if(res.data.name){
-                console.log("oh")
+                //console.log("oh")
                 return handleSuccessDialog()    
             }
-            console.log("huh")                    
+            // console.log("huh")                    
         })
         .catch((error) => {
             console.log(error.response)

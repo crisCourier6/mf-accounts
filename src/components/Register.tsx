@@ -64,7 +64,7 @@ const Register: React.FC = () => {
       ];
 
     const onSubmit = (data: FormValues) => {
-        console.log(data)
+        // console.log(data)
         api.post(url, {
             name: data.name,
             email: data.email,
@@ -74,10 +74,10 @@ const Register: React.FC = () => {
         }, {withCredentials: true})
         .then((res)=>{
             if(res.data.name){
-                console.log("oh")
+                // console.log("oh")
                 return handleSuccessDialog()    
             }
-            console.log("huh")                    
+            // console.log("huh")                    
         })
         .catch((error) => {
             console.log(error.response)

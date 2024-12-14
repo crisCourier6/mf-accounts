@@ -47,7 +47,7 @@ const Login: React.FC = () => {
             withCredentials: true,
         })
         .then((res)=>{
-            console.log(res.data)
+            // console.log(res.data)
             if(keepLogin){
                 window.localStorage.setItem("id", res.data.id)
                 window.localStorage.setItem("name", res.data.name)

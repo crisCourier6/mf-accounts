@@ -67,7 +67,7 @@ const GoogleAuth: React.FC = () => {
             api.post(url, {accessToken: tokens.access_token, userRole: ["Core"]}, 
                         {withCredentials: true})
             .then(res=> {
-                console.log(res.data)
+                // console.log(res.data)
                 window.localStorage.setItem("id", res.data.id)
                 window.localStorage.setItem("name", res.data.name)
                 window.localStorage.setItem("email", res.data.email)

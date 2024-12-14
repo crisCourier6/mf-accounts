@@ -19,7 +19,7 @@ const Activate: React.FC = () => {
             withCredentials: true,
         })
         .then((res)=>{
-            console.log(res.data)
+            // console.log(res.data)
             setActiveStatus(res.data.isActive)
                                 
         })
@@ -32,7 +32,7 @@ const Activate: React.FC = () => {
     },[id, token])              
 
     const handleSendMail = () =>{
-        return console.log("mail")
+        
     }
     const handleLogin = () =>{
         return navigate("/login")
