@@ -97,7 +97,7 @@ dotenv.config()
           }),
         ],
         output: {
-          publicPath: `http://${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}/`, // Necesario para rutas anidadas (/path/nested-path)
+          publicPath: process.env.REACT_APP_PUBLIC_PATH || '/', // Necesario para rutas anidadas (/path/nested-path)
         },
         resolve: {
           extensions: [".tsx", ".ts", ".js", ".jsx"],

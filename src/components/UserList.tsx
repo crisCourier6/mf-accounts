@@ -559,7 +559,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                         onClose={handleCloseSnackbar}
                         message={snackbarMsg}
                     >
-                        <Alert onClose={handleCloseSnackbar} severity={snackbarMsg.includes("Error")?"error":"success"} sx={{ width: '100%' }}>
+                        <Alert onClose={handleCloseSnackbar} severity={snackbarMsg.includes("Error")?"error":"warning"} sx={{ width: '100%' }}>
                             {snackbarMsg}
                         </Alert>
                     </Snackbar>

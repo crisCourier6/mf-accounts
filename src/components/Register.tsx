@@ -180,7 +180,7 @@ const Register: React.FC = () => {
                                                 message: "Mínimo 8 caractéres"
                                             },
                                             pattern: {
-                                                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+                                                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\W_]{8,}$/,
                                                 message: "Contraseña inválida"
                                             }
 
