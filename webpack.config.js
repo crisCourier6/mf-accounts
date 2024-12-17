@@ -79,6 +79,7 @@ dotenv.config()
               "./RoleList": "./src/components/RoleList",
               "./UserAccount": "./src/components/UserAccount",
               "./LoginAdmin": "./src/components/LoginAdmin", // Ejemplo, aqui se exponen los componentes
+              "./ResetPassword": "./src/components/ResetPassword"
             },
             shared: {
               ...dependencies,

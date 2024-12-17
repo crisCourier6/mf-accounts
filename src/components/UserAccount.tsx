@@ -46,8 +46,8 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
     const s_id = window.sessionStorage.getItem("s_id") || window.localStorage.getItem("s_id")
     const e_id = window.sessionStorage.getItem("e_id") || window.localStorage.getItem("e_id")
     const passwordForm = useForm<PasswordValues>({
-        mode: "onBlur",
-        reValidateMode: "onBlur",
+        mode: "onChange",
+        reValidateMode: "onChange",
         defaultValues: {
             pass: "",
             oldPass: "",
@@ -59,8 +59,8 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
 
     // Second form (for store details)
     const storeForm = useForm<StoreValues>({
-        mode: "onBlur",
-        reValidateMode: "onBlur",
+        mode: "onChange",
+        reValidateMode: "onChange",
         defaultValues: {
             address: "",
             description: "",
@@ -72,8 +72,8 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
     const { errors: storeErrors, isValid: isStoreValid } = storeFormState;
 
     const expertForm = useForm<ExpertValues>({
-        mode: "onBlur",
-        reValidateMode: "onBlur",
+        mode: "onChange",
+        reValidateMode: "onChange",
         defaultValues: {
             address: "",
             description: "",
@@ -374,9 +374,9 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                         <Typography variant='subtitle1' color= "primary.dark">
                             <li><span style={{fontWeight: "bold"}}>Email: </span>{user.email}</li>
                         </Typography>
-                        <Typography variant='subtitle1' color= "primary.dark">
+                        {/* <Typography variant='subtitle1' color= "primary.dark">
                             <li><span style={{fontWeight: "bold"}}>Rol: </span>{user.userHasRole?.map((userRole: any) => userRole.role?.name).filter(Boolean).join(", ")}</li>
-                        </Typography>
+                        </Typography> */}
                         <Typography variant='subtitle1' color= "primary.dark">
                             <li><span style={{fontWeight: "bold"}}>Miembro desde: </span>{user.createdAt?.toLocaleDateString("es-CL", )}</li>
                         </Typography>
@@ -873,7 +873,12 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                         autoHideDuration={6000}
                         onClose={handleSnackbarClose}
                         >
-                        <Alert onClose={handleSnackbarClose} severity={snackbarMsg.includes("Error")?"error":"success"} sx={{ width: '100%' }}>
+                        <Alert onClose={handleSnackbarClose} 
+                        severity={snackbarMsg.includes("Error")?"error":"success"} 
+                        variant="filled"
+                        sx={{ 
+                            width: '100%'
+                        }}>
                             {snackbarMsg}
                         </Alert>
                     </Snackbar>  

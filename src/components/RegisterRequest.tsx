@@ -217,7 +217,7 @@ const RegisterRequest: React.FC = () => {
                     {passwordRequirements.map((req, index) => (
                     <ListItem key={index} disableGutters>
                         {req.valid ? (
-                        <CheckCircleRoundedIcon color="success" fontSize="small" sx={{ mr: 1 }} />
+                        <CheckCircleRoundedIcon color="primary" fontSize="small" sx={{ mr: 1 }} />
                         ) : (
                         <CancelRoundedIcon color="error" fontSize="small" sx={{ mr: 1 }} />
                         )}
@@ -225,7 +225,7 @@ const RegisterRequest: React.FC = () => {
                         primary={
                             <Typography
                             variant="subtitle2"
-                            color={req.valid ? "success.main" : "error.main"}
+                            color={req.valid ? "primary.main" : "error.main"}
                             >
                             {req.text}
                             </Typography>
@@ -384,6 +384,7 @@ const RegisterRequest: React.FC = () => {
             <Backdrop open={showError} onClick={()=>setShowError(false)} sx={{zIndex: 100, height:"100vh", width: "100vw"}}>
                 
                     <Alert 
+                    variant="filled"
                     severity="error" 
                     action={
                         <Button color="inherit" size="small" onClick={()=>setShowError(false)}>

@@ -20,8 +20,8 @@ type FormValues = {
 const Register: React.FC = () => {
     const navigate = useNavigate()
     const form = useForm<FormValues>({
-        mode: "onBlur",
-        reValidateMode: "onBlur",
+        mode: "onChange",
+        reValidateMode: "onChange",
         defaultValues: {
             name: "",
             email: "",
@@ -206,7 +206,7 @@ const Register: React.FC = () => {
                     {passwordRequirements.map((req, index) => (
                     <ListItem key={index} disableGutters>
                         {req.valid ? (
-                        <CheckCircleRoundedIcon color="success" fontSize="small" sx={{ mr: 1 }} />
+                        <CheckCircleRoundedIcon color="primary" fontSize="small" sx={{ mr: 1 }} />
                         ) : (
                         <CancelRoundedIcon color="error" fontSize="small" sx={{ mr: 1 }} />
                         )}
@@ -214,7 +214,7 @@ const Register: React.FC = () => {
                         primary={
                             <Typography
                             variant="subtitle2"
-                            color={req.valid ? "success.main" : "error.main"}
+                            color={req.valid ? "primary.main" : "error.main"}
                             >
                             {req.text}
                             </Typography>
@@ -276,6 +276,7 @@ const Register: React.FC = () => {
             <Backdrop open={showError} onClick={()=>setShowError(false)} sx={{zIndex: 100, height:"100vh", width: "100vw"}}>
                 
                     <Alert 
+                    variant="filled"
                     severity="error" 
                     action={
                         <Button color="inherit" size="small" onClick={()=>setShowError(false)}>

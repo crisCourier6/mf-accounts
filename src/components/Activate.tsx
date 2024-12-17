@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import { Button, Box, Alert, CircularProgress} from '@mui/material';
+import { Button, Box, Alert, CircularProgress, Typography} from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from "../api";
 // import { DevTool } from '@hookform/devtools';
@@ -10,6 +10,7 @@ const Activate: React.FC = () => {
     const { id, token } = useParams()
     const [activeStatus, setActiveStatus] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
+    const [reset, setReset] = useState(false)
     
     const [allDone, setAllDone] = useState(false)
     useEffect(()=>{
@@ -32,7 +33,17 @@ const Activate: React.FC = () => {
     },[id, token])              
 
     const handleSendMail = () =>{
-        
+        const url = "/activate/" + id + "/" + token + "/reset"
+        api.get(url, {
+            withCredentials: true,
+        })
+        .then((res)=>{
+            // console.log(res.data)
+            setReset(true)              
+        })
+        .catch((error) => {
+            setErrorMessage(error.response.data.message)
+        })
     }
     const handleLogin = () =>{
         return navigate("/login")
@@ -53,7 +64,7 @@ const Activate: React.FC = () => {
             > 
                 {activeStatus  
                 ?<>
-                <Alert severity="success">
+                <Alert severity="success" variant="filled">
                     Tu cuenta ha sido activada!
                 </Alert>
                 <Button onClick={handleLogin}> 
@@ -61,12 +72,19 @@ const Activate: React.FC = () => {
                 </Button>
                 </>
                 :<>
-                <Alert severity="warning">
+                <Alert severity="warning" variant="filled">
                    {errorMessage}
                 </Alert>
-                {errorMessage.includes("expiró") && <Button onClick={handleSendMail}> 
-                    Enviar nuevo enlace a mi correo
-                </Button>}
+                {errorMessage.includes("expiró") && 
+                    <Button onClick={handleSendMail} disabled={reset}> 
+                        Enviar nuevo enlace a mi correo
+                    </Button>
+                }
+                {reset && 
+                    <Typography variant="subtitle1">
+                        Nuevo enlace envíado!
+                    </Typography>
+                }
                 {errorMessage.includes("activo") && <Button onClick={handleLogin}> 
                     Ir a iniciar sesión
                 </Button>}

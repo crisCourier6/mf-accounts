@@ -311,7 +311,8 @@ const RoleList: React.FC<{ isAppBarVisible: boolean }> = ({ isAppBarVisible }) =
                     minHeight: "70px",
                     display:"flex",
                     }}>
-                        <CardContent sx={{
+                        <CardContent onClick={() => {handleOpenRole(role)}}  
+                        sx={{
                         width:"80%",
                         height: "100%", 
                         display:"flex", 
@@ -319,6 +320,7 @@ const RoleList: React.FC<{ isAppBarVisible: boolean }> = ({ isAppBarVisible }) =
                         justifyContent: "center",
                         alignItems: "center",
                         padding:0,
+                        cursor: "pointer"
                         }}>
                             <Box sx={{
                                 width:"100%", 
@@ -400,7 +402,7 @@ const RoleList: React.FC<{ isAppBarVisible: boolean }> = ({ isAppBarVisible }) =
                                     }, 
                                     padding:0
                                 }}>
-                                    Ver más
+                                    Permisos
                                 </Button>
                             </Box>
                         </CardActions>
@@ -524,7 +526,7 @@ const RoleList: React.FC<{ isAppBarVisible: boolean }> = ({ isAppBarVisible }) =
                 onClose={handleSnackbarClose}
                 message={snackbarMsg}
             >
-                <Alert onClose={handleSnackbarClose} severity={snackbarMsg.includes("Error")?"error":"success"} sx={{ width: '100%' }}>
+                <Alert variant="filled" onClose={handleSnackbarClose} severity={snackbarMsg.includes("Error")?"error":"success"} sx={{ width: '100%' }}>
                     {snackbarMsg}
                 </Alert>
             </Snackbar>

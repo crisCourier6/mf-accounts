@@ -153,7 +153,7 @@ const LoginAdmin: React.FC = () => {
 
             <Button type="submit" variant="contained" sx={{width: "100%"}} > Iniciar sesión</Button>
             
-            <Alert severity="error" sx={{display: showError?null:"none"}} >{errorText}</Alert>
+            <Alert variant="filled" severity="error" sx={{display: showError?null:"none"}} >{errorText}</Alert>
         
         {/* <DevTool control = {control}/> */}
         </form>

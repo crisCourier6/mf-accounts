@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Box, TextField, Alert, InputAdornment, IconButton, FormGroup, FormControlLabel, Checkbox, CircularProgress} from '@mui/material';
+import { Button, Box, TextField, Alert, InputAdornment, IconButton, FormGroup, FormControlLabel, Checkbox, CircularProgress, Dialog, DialogContent, DialogTitle, DialogActions, Typography} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form"
 import api from "../api";
@@ -17,8 +17,8 @@ type FormValues = {
 const Login: React.FC = () => {
     const navigate = useNavigate()
     const form = useForm<FormValues>({
-        mode: "onBlur",
-        reValidateMode: "onBlur",
+        mode: "onChange",
+        reValidateMode: "onChange",
         defaultValues: {
             email: "",
             password: ""
@@ -31,12 +31,22 @@ const Login: React.FC = () => {
     const {errors} = formState
     const [keepLogin, setKeepLogin] = useState(false)
     const [showPass, setShowPass] = useState(false)
+    const [showPassResetDialog, setShowPassResetDialog] = useState(false)
+    const [resetEmail, setResetEmail] = useState("");
+    const [resetLoading, setResetLoading] = useState(false);
+    const [resetError, setResetError] = useState("");
+    const [resetSuccess, setResetSuccess] = useState("");
     const [loggingIn, setLoggingIn] = useState(false)
+    const [email, setEmail] = useState("")
     const queryParams = "?r=Core"
 
     useEffect(() => {
         document.title = "Iniciar sesión - EyesFood";
     }, []); // Empty dependency array to ensure it runs only once on mount
+
+    const handlePassReset = () => {
+        setShowPassResetDialog(true)
+    }
 
     const onSubmit = (data: FormValues) => {
         setLoggingIn(true)
@@ -92,6 +102,25 @@ const Login: React.FC = () => {
 
     }
 
+    const handleResetPassword = () => {
+        setResetLoading(true);
+        setResetError("");
+        setResetSuccess("");
+    
+        api
+          .post("/auth/resetpass", { email: resetEmail })
+          .then(() => {
+            setResetSuccess("Se ha enviado un enlace de recuperación a tu correo.");
+            setResetEmail(""); // Clear the email field
+          })
+          .catch((error) => {
+            setResetError(
+              error.response?.data.message || "Error al enviar el correo."
+            );
+          })
+          .finally(() => setResetLoading(false));
+      };
+
     return  <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Box
         sx={{
@@ -102,7 +131,7 @@ const Login: React.FC = () => {
             alignItems: "center",
             flexDirection: "column",
             py: 2,
-            gap: 5,
+            gap:1,
             width:"100%"
         }}     
         >
@@ -117,6 +146,7 @@ const Login: React.FC = () => {
                 helperText = {errors.email?.message}
                 fullWidth
                 inputProps={{maxLength: 100}}
+                sx={{py:1}}
             />
 
             <TextField 
@@ -140,20 +170,74 @@ const Login: React.FC = () => {
                         </InputAdornment>
                     ),
                 }}
+                sx={{py:1}}
                 inputProps={{maxLength: 100}}
                 fullWidth
             />
-
+            <Button variant="text" onClick={handlePassReset}>
+                <Typography variant="subtitle2" sx={{textDecoration: "underline"}}>
+                    Olvidé mi contraseña
+                </Typography>
+            </Button>
             <FormGroup>
                 <FormControlLabel control={<Checkbox checked={keepLogin} onChange={()=>setKeepLogin(!keepLogin)}/>} label="Mantener sesión iniciada" />
             </FormGroup>
-
             {loggingIn
                 ?<CircularProgress/>
                 :<Button type="submit" variant="contained" sx={{width: "100%"}} > Iniciar sesión</Button>
             }
             
-            <Alert severity="error" sx={{display: showError?null:"none"}} >{errorText}</Alert>
+            <Alert variant="filled" severity="error" sx={{display: showError?null:"none"}} >{errorText}</Alert>
+            {/* Reset Password Dialog */}
+            <Dialog
+                open={showPassResetDialog}
+                onClose={() => setShowPassResetDialog(false)}
+                PaperProps={{
+                    sx: {
+                        maxHeight: '80vh', 
+                        width: "85vw",
+                        maxWidth: "450px"
+                    }
+                }} 
+            >
+                <DialogTitle>Restablecer contraseña</DialogTitle>
+                <DialogContent>
+                    <Typography variant="subtitle1">
+                        Ingresa el correo asociado a tu cuenta EyesFood. Te enviaremos un enlace donde podrás establecer una contraseña nueva.
+                    </Typography>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="reset-email"
+                        label="Correo electrónico"
+                        type="email"
+                        fullWidth
+                        variant="standard"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                    />
+                    {resetError && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                        {resetError}
+                        </Alert>
+                    )}
+                    {resetSuccess && (
+                        <Alert severity="success" sx={{ mt: 2 }}>
+                        {resetSuccess}
+                        </Alert>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                <Button onClick={() => setShowPassResetDialog(false)}>Cerrar</Button>
+                <Button
+                    onClick={handleResetPassword}
+                    disabled={!resetEmail || resetLoading}
+                    variant="contained"
+                >
+                    {resetLoading ? <CircularProgress size={20} /> : "Enviar"}
+                </Button>
+                </DialogActions>
+            </Dialog>
         
         {/* <DevTool control = {control}/> */}
         

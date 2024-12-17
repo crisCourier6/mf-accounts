@@ -4,6 +4,7 @@ import { Dialog, DialogTitle, DialogContent, Typography, IconButton, Box, Dialog
 import api from '../api';
 import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
 import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
 import { Role } from '../interfaces/Role';
 import { RoleHasPermission } from '../interfaces/RoleHasPermission';
 import { Permission } from '../interfaces/Permission';
@@ -288,12 +289,14 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
                             </div>
                         ))}
                 </FormGroup>
+                <Button onClick={() => setShowCreatePermissionDialog(true)} variant="text" fullWidth>
+                    <AddIcon fontSize='small'/>
+                    Crear permiso
+                </Button>
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => setShowChangePermissionDialog(false)}>Cancelar</Button>
-                <Button onClick={() => setShowCreatePermissionDialog(true)} variant="contained">
-                    Crear permiso
-                </Button>
+                
                 <Button variant="contained" onClick={handleChangePermissions}>Guardar</Button>
             </DialogActions>
         </Dialog>
@@ -397,7 +400,7 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
             onClose={handleSnackbarClose}
             message={snackbarMsg}
         >
-            <Alert onClose={handleSnackbarClose} severity={snackbarMsg.includes("Error")?"error":"success"} sx={{ width: '100%' }}>
+            <Alert variant="filled" onClose={handleSnackbarClose} severity={snackbarMsg.includes("Error")?"error":"success"} sx={{ width: '100%' }}>
                 {snackbarMsg}
             </Alert>
         </Snackbar>
