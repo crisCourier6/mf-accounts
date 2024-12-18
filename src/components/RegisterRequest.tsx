@@ -157,6 +157,7 @@ const RegisterRequest: React.FC = () => {
                 {...register("name", {required: "Ingresar nombre"})}
                 error={!!errors.name}
                 helperText = {errors.name?.message}
+                inputProps={{ maxLength: 100 }}
             />
        
             <TextField 
@@ -175,6 +176,7 @@ const RegisterRequest: React.FC = () => {
                 })}
                 error={!!errors.email}
                 helperText = {errors.email?.message}
+                inputProps={{ maxLength: 100 }}
             />
 
             <TextField 
@@ -197,6 +199,7 @@ const RegisterRequest: React.FC = () => {
                 })}
                 error={!!errors.pass}
                 helperText = {errors.pass?.message}
+                inputProps={{ maxLength: 100 }}
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">
@@ -248,6 +251,7 @@ const RegisterRequest: React.FC = () => {
                 })}
                 error={!!errors.confirmPassword}
                 helperText = {errors.confirmPassword?.message}
+                inputProps={{ maxLength: 100 }}
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">
@@ -272,6 +276,7 @@ const RegisterRequest: React.FC = () => {
                 {...register("address")}
                 error={!!errors.address}
                 helperText = {errors.address?.message}
+                inputProps={{ maxLength: 100 }}
             />
 
             <TextField 
@@ -287,6 +292,7 @@ const RegisterRequest: React.FC = () => {
                 {...register("description", {required: "Ingresar descripción breve"})}
                 error={!!errors.description}
                 helperText = {errors.description?.message}
+                inputProps={{ maxLength: 750 }}
             />
 
             <TextField 
@@ -322,6 +328,7 @@ const RegisterRequest: React.FC = () => {
                 {...register("webPage")}
                 error={!!errors.webPage}
                 helperText = {errors.webPage?.message}
+                inputProps={{ maxLength: 100 }}
             />
 
             
@@ -335,6 +342,7 @@ const RegisterRequest: React.FC = () => {
                 {...register("specialty", {required: "Ingresar especialización"})}
                 error={!!errors.specialty}
                 helperText = {errors.specialty?.message}
+                inputProps={{ maxLength: 100 }}
             />)}
             {userType==="expert" && (<Box my={1}>
            

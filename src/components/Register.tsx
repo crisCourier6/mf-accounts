@@ -151,6 +151,7 @@ const Register: React.FC = () => {
                 {...register("name", {required: "Ingresar nombre"})}
                 error={!!errors.name}
                 helperText = {errors.name?.message}
+                inputProps={{ maxLength: 100 }}
             />
        
             <TextField 
@@ -167,6 +168,7 @@ const Register: React.FC = () => {
                 })}
                 error={!!errors.email}
                 helperText = {errors.email?.message}
+                inputProps={{ maxLength: 100 }}
             />
 
             <TextField 
@@ -187,6 +189,7 @@ const Register: React.FC = () => {
                 })}
                 error={!!errors.password}
                 helperText = {errors.password?.message}
+                inputProps={{ maxLength: 100 }}
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">
@@ -235,6 +238,7 @@ const Register: React.FC = () => {
                 })}
                 error={!!errors.confirmPassword}
                 helperText = {errors.confirmPassword?.message}
+                inputProps={{ maxLength: 100 }}
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">

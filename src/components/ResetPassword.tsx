@@ -129,6 +129,7 @@ const ResetPassword: React.FC = () => {
                     })}
                     error={!!passwordErrors.pass}
                     helperText={passwordErrors.pass?.message}
+                    inputProps={{maxLength: 100}}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
@@ -160,6 +161,7 @@ const ResetPassword: React.FC = () => {
                     })}
                     error={!!passwordErrors.confirmPass}
                     helperText={passwordErrors.confirmPass?.message}
+                    inputProps={{maxLength: 100}}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">

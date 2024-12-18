@@ -623,6 +623,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                     fullWidth
                                     variant="outlined"
                                     autoComplete="off"
+                                    inputProps={{maxLength: 100}}
                                     {...registerPassword("oldPass", {required: "Ingresar contraseña", 
                                         minLength: {
                                             value: 8,
@@ -658,6 +659,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                     type={showNewPass ? 'text' : 'password'}
                                     fullWidth
                                     variant="outlined"
+                                    inputProps={{maxLength: 100}}
                                     autoComplete="off"
                                     {...registerPassword("pass", {required: "Ingresar contraseña", 
                                         minLength: {
@@ -694,6 +696,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                         type={showRepeatPass ? 'text' : 'password'}
                                         fullWidth
                                         variant="outlined" 
+                                        inputProps={{maxLength: 100}}
                                         autoComplete="off"
                                         {...registerPassword("confirmPass", {required: "Repetir contraseña",
                                                                         validate: () => watch("pass")!=watch("confirmPass")?"Contraseñas no coinciden": true
@@ -753,6 +756,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                     fullWidth
                                     multiline
                                     rows={4}
+                                    inputProps={{maxLength: 750}}
                                     label="Descripción"
                                     {...registerStore("description", {required: "Ingresar descripción"})}
                                     error={!!storeErrors.description}
@@ -762,6 +766,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                 <TextField
                                     fullWidth
                                     label="Dirección"
+                                    inputProps={{maxLength: 100}}
                                     {...registerStore("address")}
                                     error={!!storeErrors.address}
                                     helperText={storeErrors.address?.message}
@@ -770,6 +775,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                 <TextField
                                     fullWidth
                                     label="Teléfono"
+                                    inputProps={{maxLength: 20}}
                                     {...registerStore("phone")}
                                     error={!!storeErrors.phone}
                                     helperText={storeErrors.phone?.message}
@@ -778,6 +784,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                 <TextField
                                     fullWidth
                                     label="Página Web"
+                                    inputProps={{maxLength: 100}}
                                     {...registerStore("webPage")}
                                     error={!!storeErrors.webPage}
                                     helperText={storeErrors.webPage?.message}
@@ -813,6 +820,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                 <TextField
                                     label="Descripción"
                                     {...registerExpert('description', {required: "Ingresar descripción"})}
+                                    inputProps={{maxLength: 750}}
                                     fullWidth
                                     multiline
                                     rows={4}
@@ -822,6 +830,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                 <TextField
                                     fullWidth
                                     label="Especialidad"
+                                    inputProps={{maxLength: 100}}
                                     {...registerExpert("specialty", {required: "Ingresar especialidad"})}
                                     error={!!expertErrors.specialty}
                                     helperText={expertErrors.specialty?.message}
@@ -830,6 +839,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                 <TextField
                                     fullWidth
                                     label="Dirección"
+                                    inputProps={{maxLength: 100}}
                                     {...registerExpert("address")}
                                     error={!!expertErrors.address}
                                     helperText={expertErrors.address?.message}
@@ -838,6 +848,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                 <TextField
                                     fullWidth
                                     label="Teléfono"
+                                    inputProps={{maxLength: 20}}
                                     {...registerExpert("phone")}
                                     error={!!expertErrors.phone}
                                     helperText={expertErrors.phone?.message}
@@ -846,6 +857,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                 <TextField
                                     fullWidth
                                     label="Página Web"
+                                    inputProps={{maxLength: 100}}
                                     {...registerExpert("webPage")}
                                     error={!!expertErrors.webPage}
                                     helperText={expertErrors.webPage?.message}

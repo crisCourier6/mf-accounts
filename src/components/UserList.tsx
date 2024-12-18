@@ -592,6 +592,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                                     label="Nombre" 
                                     type="text" 
                                     variant="standard" 
+                                    inputProps={{maxLength: 100}}
                                     fullWidth
                                     sx={{my: 1}}
                                     {...register("name", {required: "Ingresar nombre"})}
@@ -604,6 +605,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                                     label="Email" 
                                     type="email" 
                                     variant="standard" 
+                                    inputProps={{maxLength: 100}}
                                     fullWidth
                                     sx={{my: 1}}
                                     {...register("email", {required: "Ingresar email"})}
@@ -616,6 +618,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                                     label="Contraseña" 
                                     type={showPass ? 'text' : 'password'}
                                     variant="standard" 
+                                    inputProps={{maxLength: 100}}
                                     fullWidth
                                     sx={{my: 1}}
                                     {...register("pass", {required: "Ingresar contraseña", 
@@ -651,6 +654,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                                     label="Repetir contraseña" 
                                     type={showConfirmPass ? 'text' : 'password'}
                                     variant="standard" 
+                                    inputProps={{maxLength: 100}}
                                     fullWidth
                                     sx={{my: 1}}
                                     {...register("confirmPassword", {required: "Repetir contraseña",

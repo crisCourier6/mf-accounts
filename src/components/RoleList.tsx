@@ -441,6 +441,7 @@ const RoleList: React.FC<{ isAppBarVisible: boolean }> = ({ isAppBarVisible }) =
                             fullWidth
                             label="Nombre"
                             disabled={essentialRoles.includes(selectedRole?.name ?? "")}
+                            inputProps={{maxLength: 100}}
                             {...registerRole("name", {required: "Ingresar nombre"})}
                             error={!!roleErrors.name}
                             helperText={roleErrors.name?.message}
@@ -450,6 +451,7 @@ const RoleList: React.FC<{ isAppBarVisible: boolean }> = ({ isAppBarVisible }) =
                             fullWidth
                             label="Descripción"
                             {...registerRole("description")}
+                            inputProps={{maxLength: 100}}
                             error={!!roleErrors.description}
                             helperText={roleErrors.description?.message}
                             margin="normal"
@@ -481,6 +483,7 @@ const RoleList: React.FC<{ isAppBarVisible: boolean }> = ({ isAppBarVisible }) =
                         <TextField
                             fullWidth
                             label="Nombre"
+                            inputProps={{maxLength: 100}}
                             {...registerRole("name", {required: "Ingresar nombre"})}
                             error={!!roleErrors.name}
                             helperText={roleErrors.name?.message}
@@ -489,6 +492,7 @@ const RoleList: React.FC<{ isAppBarVisible: boolean }> = ({ isAppBarVisible }) =
                         <TextField
                             fullWidth
                             label="Descripción"
+                            inputProps={{maxLength: 100}}
                             {...registerRole("description")}
                             error={!!roleErrors.description}
                             helperText={roleErrors.description?.message}

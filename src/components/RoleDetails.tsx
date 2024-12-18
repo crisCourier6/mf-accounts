@@ -322,6 +322,7 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
                         label="Nombre"
                         {...registerPermission("name", {required: "Ingresar nombre"})}
                         error={!!permissionErrors.name}
+                        inputProps={{maxLength: 100}}
                         helperText={permissionErrors.name?.message}
                         margin="normal"
                     />
@@ -331,6 +332,7 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
                         {...registerPermission("description")}
                         error={!!permissionErrors.description}
                         helperText={permissionErrors.description?.message}
+                        inputProps={{maxLength: 100}}
                         margin="normal"
                     />
                     <DialogActions>
@@ -377,6 +379,7 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
                         {...registerPermission("name", {required: "Ingresar nombre"})}
                         error={!!permissionErrors.name}
                         helperText={permissionErrors.name?.message}
+                        inputProps={{maxLength: 100}}
                         margin="normal"
                     />
                     <TextField
@@ -385,6 +388,7 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
                         {...registerPermission("description")}
                         error={!!permissionErrors.description}
                         helperText={permissionErrors.description?.message}
+                        inputProps={{maxLength: 100}}
                         margin="normal"
                     />
                     <DialogActions>
@@ -395,7 +399,7 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
             </DialogContent>
         </Dialog>    
         <Snackbar
-            open={snackbarOpen}
+            open={snackbarOpen} 
             autoHideDuration={6000}
             onClose={handleSnackbarClose}
             message={snackbarMsg}
