@@ -861,15 +861,25 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
 
                     <Dialog open={showStoreForm} onClose={handleCloseStoreForm} 
                     PaperProps={{
-                        sx: {
-                            maxHeight: '80vh', 
-                            width: "85vw",
-                            maxWidth: "450px"
+                        sx: {width: "100vw", 
+                            maxWidth: "500px", 
+                            maxHeight: "80vh",
+                            margin: 0
                         }
-                    }} >
-                        <DialogTitle sx={{bgcolor: "primary.dark", color: "primary.contrastText"}}>
-                            Modificar información
-                        </DialogTitle>
+                    }}
+                    >
+                        <DialogTitle>
+                            <Box sx={{display:"flex", justifyContent: "space-between"}}>
+                                Modificar información
+                                <IconButton
+                                color="inherit"
+                                onClick={handleCloseStoreForm}
+                                sx={{p:0}}
+                                >
+                                    <CloseIcon />
+                                </IconButton>
+                            </Box>
+                        </DialogTitle>      
                         <DialogContent sx={{
                             padding:0.5,
                             flex: 1, 
@@ -916,7 +926,6 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                 />
                                 
                                 <DialogActions>
-                                    <Button onClick={handleCloseStoreForm}>Cancelar</Button>
                                     <Button type="submit" variant="contained" disabled={!isStoreValid}>Guardar</Button>
                                 </DialogActions>
                             </form>
@@ -925,16 +934,25 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
 
                     <Dialog open={showExpertForm} onClose={handleCloseExpertForm}
                     PaperProps={{
-                        sx: {
-                            maxHeight: '80vh', 
-                            width: "85vw",
-                            maxWidth: "450px"
+                        sx: {width: "100vw", 
+                            maxWidth: "500px", 
+                            maxHeight: "80vh",
+                            margin: 0
                         }
-                    }} >
-                        
-                        <DialogTitle sx={{bgcolor: "primary.dark", color: "primary.contrastText"}}>
-                            Modificar información
-                        </DialogTitle>
+                    }}
+                    >
+                        <DialogTitle>
+                            <Box sx={{display:"flex", justifyContent: "space-between"}}>
+                                Modificar información
+                                <IconButton
+                                color="inherit"
+                                onClick={handleCloseExpertForm}
+                                sx={{p:0}}
+                                >
+                                    <CloseIcon />
+                                </IconButton>
+                            </Box>
+                        </DialogTitle>      
                         <DialogContent sx={{
                             padding:0.5,
                             flex: 1, 
@@ -999,7 +1017,6 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                             </form>
                         </DialogContent>
                         <DialogActions>
-                            <Button onClick={handleCloseExpertForm}>Cancelar</Button>
                             <Button onClick={handleSubmitExpert(onSubmitExpert)} variant="contained" disabled={!isExpertValid}>Guardar</Button>
                         </DialogActions>
                     </Dialog>         
@@ -1017,9 +1034,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                         }}>
                             {snackbarMsg}
                         </Alert>
-                    </Snackbar>  
-                
-                
+                    </Snackbar>   
         </Grid>
     )
 }

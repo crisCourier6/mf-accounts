@@ -142,8 +142,8 @@ const LoginAdmin: React.FC = () => {
                 }}     
                 >
                     <FormControlLabel value="Admin" control={<Radio />} label="Admin" />
-                    <FormControlLabel value="Tech" control={<Radio />} label="Técnico" />
-                    <FormControlLabel value="Expert" control={<Radio />} label="Experto" />
+                    <FormControlLabel value="Tech" control={<Radio />} label="Soporte" />
+                    <FormControlLabel value="Expert" control={<Radio />} label="Nutricionista" />
                     <FormControlLabel value="Store" control={<Radio />} label="Tienda" />
                 </Box>
             </RadioGroup>

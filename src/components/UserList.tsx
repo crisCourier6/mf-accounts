@@ -51,7 +51,7 @@ type FormValues = {
 
 
 
-const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
+const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isAppBarVisible, userRoles }) => {
     const navigate = useNavigate()
     const usersURL = "/users"
     const rolesURL = "/roles"
@@ -137,7 +137,21 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                 updatedAt: new Date(user.updatedAt),
                 activationExpire: new Date(user.activationExpire),
             }));
-            setUsers(transformedUsers);       
+            console.log(transformedUsers)
+            if (!userRoles.includes("Admin")){
+                const filteredUsers = transformedUsers.filter((user: User) => {
+                    // Check if the user has the "Admin" role
+                    const hasAdminRole = user.userHasRole?.some((userHasRole: UserHasRole) => userHasRole.role.name === "Admin");
+                    return !hasAdminRole; // Exclude user if they have the "Admin" role
+                });
+            
+                // Set the filtered users to the state
+                setUsers(filteredUsers);
+            }
+            else{   
+                setUsers(transformedUsers);     
+            }
+             
         })
         .catch(error => {
             console.log(error)
