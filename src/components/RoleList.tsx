@@ -9,6 +9,7 @@ import { Role } from '../interfaces/Role';
 import RoleDetails from './RoleDetails';
 import { useForm } from 'react-hook-form';
 import { Permission } from '../interfaces/Permission';
+import NavigateBack from './NavigateBack';
 
 type RoleValues = {
     name: string,
@@ -260,30 +261,36 @@ const RoleList: React.FC<{ isAppBarVisible: boolean }> = ({ isAppBarVisible }) =
         sx={{width: "100vw", gap:2, flexWrap: "wrap", pb: 7}}
         >
             <Box 
-                sx={{
-                    position: 'sticky',
-                    top: isAppBarVisible?"50px":"0px",
-                    width:"100%",
-                    maxWidth: "500px",
-                    transition: "top 0.1s",
-                    backgroundColor: 'primary.dark', // Ensure visibility over content
-                    zIndex: 100,
-                    boxShadow: 3,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    borderBottom: "5px solid",
-                    borderColor: "secondary.main",
-                    boxSizing: "border-box"
-                  }}
+            sx={{
+                position: 'sticky',
+                top: isAppBarVisible?"50px":"0px",
+                width:"100%",
+                maxWidth: "500px",
+                transition: "top 0.1s",
+                backgroundColor: 'primary.dark', // Ensure visibility over content
+                zIndex: 100,
+                boxShadow: 3,
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                borderBottom: "5px solid",
+                borderLeft: "5px solid",
+                borderRight: "5px solid",
+                borderColor: "secondary.main",
+                boxSizing: "border-box",
+                color: "primary.contrastText"
+            }}
             >
-                <Typography variant='h5' width="100%"  color="primary.contrastText" sx={{py:1, borderLeft: "3px solid",
-                    borderRight: "3px solid",
-                    borderColor: "secondary.main",
-                    boxSizing: "border-box",
-                }}>
-                    Roles
-                </Typography>
+                <Box sx={{display: "flex", flex: 1}}>
+                    <NavigateBack/>
+                </Box>
+                <Box sx={{display: "flex", flex: 4}}>
+                    <Typography variant='h5' width="100%"  color="primary.contrastText" sx={{py:1}}>
+                        Roles
+                    </Typography>
+                </Box>
+                <Box sx={{display: "flex", flex: 1}}>
+                </Box>
             </Box>
 
             <Box sx={{

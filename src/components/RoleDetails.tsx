@@ -9,6 +9,7 @@ import { Role } from '../interfaces/Role';
 import { RoleHasPermission } from '../interfaces/RoleHasPermission';
 import { Permission } from '../interfaces/Permission';
 import { useForm } from 'react-hook-form';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface RoleProfileProps {
     role: Role;
@@ -192,23 +193,23 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
         PaperProps={{
             sx: {
                 maxHeight: '80vh', 
-                width: "95vw",
+                width: "100vw",
                 maxWidth: "500px",
+                margin:0,
                 border: "2px solid", borderColor: "secondary.main"
             }
         }}>
             <DialogTitle sx={{padding:0.5, bgcolor: "primary.dark"}}>
-            <Box sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: "center", 
-                    flexDirection: "column",
-                    gap: 0.5
-                }}>
-                    <Typography variant='h6' width="100%"  color="primary.contrastText" textAlign={"center"}>
-                        ROL: {role.name}
-                    </Typography>
-                </Box>
+            <Box sx={{display:"flex", justifyContent: "space-between", color: "primary.contrastText"}}>
+                ROL: {role.name}
+                <IconButton
+                color="inherit"
+                onClick={onClose}
+                sx={{p:0}}
+                >
+                    <CloseIcon />
+                </IconButton>
+            </Box>
             </DialogTitle>
             <DialogContent dividers sx={{padding:1}}>
                 <Typography variant='h6' width="100%"  color="primary.dark" textAlign={"left"}>
@@ -236,11 +237,7 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
                 }
             </DialogContent>
             <DialogActions>
-                <Button
-                    onClick={onClose}
-                >
-                    Cerrar
-                </Button>
+                
                 <Button onClick={() => setShowChangePermissionDialog(true)}
                     variant="contained"
                 >
@@ -345,7 +342,7 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
         <Dialog open={showRemovePermissionDialog} onClose={() => setShowRemovePermissionDialog(false)}>
             <DialogTitle>Borrar permiso {selectedPermission?.name}</DialogTitle>
             <DialogContent>  
-                ¿Seguro que desea borrar este rol? 
+                ¿Seguro que desea borrar este permiso? 
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => setShowRemovePermissionDialog(false)} color="primary">

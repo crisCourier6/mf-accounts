@@ -1,10 +1,15 @@
 import React from "react";
 import { Button, Box, Alert, Grid, Dialog, DialogContent, DialogActions, TextField, 
-    Snackbar, InputAdornment, IconButton, Typography, DialogTitle, Tooltip, FormGroup, FormControlLabel, Checkbox} from '@mui/material';
+    Snackbar, InputAdornment, IconButton, Typography, DialogTitle, Tooltip, FormGroup, FormControlLabel, Checkbox,
+    List,
+    ListItem,
+    ListItemText,
+    FormHelperText} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import api from "../api";
 import { useEffect, useState } from 'react';
-import { DataGrid, GridColDef, GridEventListener, GridFilterModel, GridRenderCellParams, GridToolbar } from "@mui/x-data-grid"
+import { DataGrid, GridColDef, GridEventListener, GridFilterModel, GridRenderCellParams, GridToolbar, GridToolbarContainer, 
+    GridToolbarExport, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarDensitySelector  } from "@mui/x-data-grid"
 import { esES } from '@mui/x-data-grid/locales';
 import { useForm } from "react-hook-form";
 import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
@@ -16,6 +21,17 @@ import AddIcon from '@mui/icons-material/Add';
 import { User } from "../interfaces/User"
 import { Role } from "../interfaces/Role";
 import { UserHasRole } from "../interfaces/UserHasRole";
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
+import CloseIcon from '@mui/icons-material/Close';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import BlockIcon from '@mui/icons-material/Block';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
+import PendingIcon from '@mui/icons-material/Pending';
+import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
+import { toUnitless } from "@mui/material/styles/cssUtils";
+import NavigateBack from "./NavigateBack";
  
 type FormValues = {
     name: string
@@ -24,7 +40,16 @@ type FormValues = {
     confirmPassword: string
     profilePic: string
     roles: string[]
+    address: string,
+    description: string,
+    phone: string,
+    webPage: string,
+    specialty: string,
+    isNutritionist: boolean,
+    isCoach: boolean
 }
+
+
 
 const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
     const navigate = useNavigate()
@@ -36,7 +61,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
     const [showChangeRolesDialog, setShowChangeRolesDialog] = useState(false)
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
-    const [openNewTechDialog, setOpenNewTechDialog] = useState(false);
+    const [openNewUserDialog, setOpenNewUserDialog] = useState(false);
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMsg, setSnackbarMsg] = useState('');
@@ -46,21 +71,52 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
     const [showConfirmPass, setShowConfirmPass] = useState(false)
     const [selectedRoles, setSelectedRoles] = useState<Role[]>([])
     const [showRejectDialog, setShowRejectDialog] = useState(false)
+    const [showFlipStateDialog, setShowFlipStateDialog] = useState(false)
+    const [page, setPage] = useState(0); // 0 = Role selection, 1 = Form
+    const [role, setRole] = useState(["Core"]); // For storing selected role
+    const [userTypeName, setUserTypeName] = useState("")
     const form = useForm<FormValues>({
-        mode: "onBlur",
-        reValidateMode: "onBlur",
+        mode: "onChange",
+        reValidateMode: "onChange",
         defaultValues: {
             name: "",
             email: "",
             pass: "",
             confirmPassword: "",
             profilePic: "",
-            roles: ["Core", "Tech"]
+            roles: ["Core", "Tech"],
+            address: "",
+            description: "",
+            phone: "",
+            webPage: "",
+            specialty: "",
+            isNutritionist: true,
+            isCoach: false
         }
     })   
 
-    const { register, handleSubmit, formState, control, getValues, watch } = form
-    const {errors} = formState
+    const { register, handleSubmit, formState, control, getValues, watch, reset } = form
+    const {errors, isValid: isFormValid} = formState
+    const password = watch("pass")
+
+    const passwordRequirements = [
+        {
+          text: "Mínimo 8 caracteres",
+          valid: password?.length >= 8,
+        },
+        {
+          text: "Al menos una letra mayúscula",
+          valid: /[A-Z]/.test(password || ""),
+        },
+        {
+          text: "Al menos una letra minúscula",
+          valid: /[a-z]/.test(password || ""),
+        },
+        {
+          text: "Al menos un número",
+          valid: /\d/.test(password || ""),
+        },
+      ];
     const queryParams = "?ws=true&we=true&wr=true"
 
     useEffect(()=>{
@@ -110,13 +166,42 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
             setSelectedRoles(initialRoles.filter(Boolean) as Role[]); // Ensure no null values
         }
     }, [selectedUser]);
-
+    
+    const translateRoles = (roles:string[]) => {
+        let translated = ""
+        if (!roles){
+            return "Sin roles"
+        }
+        if (roles.includes("Expert")){
+            translated = "Nutricionista"
+        }
+        else if (roles.includes("Store")){
+            translated = "Tienda"
+        }
+        else if (roles.includes("Tech")){
+            translated = "Soporte"
+        }
+        else if (roles.includes("Admin")){
+            translated = "Administrador"
+        }
+        else if (roles.includes("Core")){
+            translated = "Común"
+        }
+        else{
+            translated = "Sin roles"
+        }
+        return translated
+        
+    }
     const columns: GridColDef[] = [
         {field: "name", headerName: "Nombre", flex: 1.2, headerClassName: "header-colors", headerAlign: "center"},
         {field: "email", headerName: "Email", flex: 2, headerClassName: "header-colors", headerAlign: "center"},
+        {field: "createdAt", headerName: "Creada el", flex: 1, headerClassName: "header-colors", headerAlign: "center", align: "center", 
+            type: "date"
+        },
         {
             field: "roles",
-            headerName: "Roles",
+            headerName: "Tipo",
             flex: 1,
             headerClassName: "header-colors",
             headerAlign: "center",
@@ -126,18 +211,48 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                 // Extract roles from userHasRole
                 const roles = params.row.userHasRole?.map((userRole: any) => userRole.role?.name).filter(Boolean);
                 // Join the roles into a comma-separated string
-                return roles?.length > 0 ? roles.join(', ') : 'Sin roles'; // Handle case where there are no roles
+                return translateRoles(roles) // Handle case where there are no roles
             },
         },
-        {field: "createdAt", headerName: "Fecha", flex: 1, headerClassName: "header-colors", headerAlign: "center", align: "center", 
-            type: "date"
-        },
+        
         {field: "isActive", headerName: "Estado", flex: 1, headerClassName: "header-colors", headerAlign: "center", align: "center", 
             type: "singleSelect",
             valueOptions: [
                 {value: true, label: "Activada"}, 
                 {value: false, label: "Desactivada"}, 
-            ]
+            ],
+            renderCell: (params) => {
+                const isActive = params.value; // Get the value of isActive (true or false)
+                const isPending = params.row.isPending
+                return ( 
+                    <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: 1,
+                        height: '100%',
+                    }}>
+                    {isPending 
+                        ?   <Tooltip title={"Pendiente"} placement="left" arrow>
+                                <PendingIcon
+                                sx={{ 
+                                    color: "primary.main", 
+                                }} 
+                            />
+                            </Tooltip>
+                        :  <Tooltip title={isActive ? "Activada" : "Desactivada"} placement="left" arrow>
+                                {
+                                    isActive
+                                        ?   <CheckCircleIcon sx={{color: "secondary.dark"}}/>
+                                        :   <DoNotDisturbOnIcon sx={{color: "warning.dark"}}/>
+                                            
+                                }
+                            </Tooltip>
+                        }
+                    </Box>
+                   
+                );
+            },
         },
         {field: "isPending", headerName: "Pendiente", flex: 1, headerClassName: "header-colors", headerAlign: "center", align: "center", 
             type: "singleSelect",
@@ -168,18 +283,76 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                     gap: 1,
                     height: '100%',
                 }}>
-                    <Tooltip title="Modificar cuenta" key="edit" placement="left" arrow={true}>
+                    {params.row.isPending ? (
+                    <>
+                    <Tooltip title="Ver perfil" key="profile" placement="left" arrow>
                         <IconButton color="primary" onClick={() => handleEdit(params.row)}>
-                            <EditIcon />
+                        <Visibility />
                         </IconButton>
                     </Tooltip>
-                    <Tooltip title="Eliminar" key="delete" placement="right" arrow>
+                    {/* Botón Aceptar */}
+                    <Tooltip title="Aceptar cuenta" key="accept" placement="top" arrow>
+                        <IconButton onClick={()=>{
+                            setSelectedUser(params.row)
+                            setShowFlipStateDialog(params.row.id)
+                            }}
+                        >
+                            <CheckCircleIcon sx={{color: "secondary.dark"}}/>
+                        </IconButton>
+                    </Tooltip>
+
+                    {/* Botón Rechazar */}
+                    <Tooltip title="Rechazar cuenta" key="reject" placement="right" arrow>
+                        <IconButton color="error" onClick={()=>{
+                            setSelectedUser(params.row)
+                            setShowRejectDialog(true)
+                            }}
+                        >
+                            <BlockIcon />
+                        </IconButton>
+                    </Tooltip>
+                    </>
+                ) : (
+                    <>
+                    {/* Botón Modificar */}
+                    <Tooltip title="Ver perfil" key="profile" placement="left" arrow>
+                        <IconButton color="primary" onClick={() => handleEdit(params.row)}>
+                        <Visibility />
+                        </IconButton>
+                    </Tooltip>
+
+                    {/* Botón Desactivar */}
+                    {   params.row.isActive 
+                        ?   <Tooltip title="Desactivar cuenta" key="disable" placement="top" arrow>
+                                <IconButton onClick={()=>{
+                                    setSelectedUser(params.row)
+                                    setShowFlipStateDialog(true)
+                                    // handleStateChange(params.row.id, "Inactive")
+                                }}>
+                                    <DoNotDisturbOnIcon sx={{color: "warning.dark"}}/>
+                                </IconButton>
+                            </Tooltip>
+                        :   <Tooltip title="Reactivar cuenta" key="enable" placement="top" arrow>
+                                <IconButton onClick={()=>{
+                                    setSelectedUser(params.row)
+                                    setShowFlipStateDialog(true)
+                                    // handleStateChange(params.row.id, "Active")
+                                }}>
+                                    <CheckCircleIcon sx={{color: "secondary.dark"}}/>
+                                </IconButton>
+                            </Tooltip>
+                    }
+                    
+                    <Tooltip title="Eliminar cuenta" key="delete" placement="right" arrow>
                         <IconButton color="error" onClick={() => {
-                            setSelectedUser(params.row);
-                            setOpenDeleteDialog(true);}}>
-                            <DeleteForeverRoundedIcon />
+                        setSelectedUser(params.row);
+                        setOpenDeleteDialog(true);
+                        }}>
+                        <DeleteForeverRoundedIcon />
                         </IconButton>
                     </Tooltip>
+                    </>
+                )}
                     
                 </Box>
             )
@@ -210,7 +383,10 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
             setSnackbarMsg('Error al intentar eliminar usuario');
         }) 
         .finally(()=> {
+            setShowRejectDialog(false)
+            setReason("")
             setOpenDeleteDialog(false);
+            setOpenEditDialog(false)
             setSnackbarOpen(true);
         })
     };
@@ -228,14 +404,53 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
         setSnackbarOpen(false);
     };
 
-    const handleCreateTech = (data: FormValues) => {
-        api.post(usersURL, {
-            name: data.name,
-            email: data.email,
-            pass: data.pass,
-            profilePic: "default_profile.png",
-            userRole: data.roles
-        }, {withCredentials: true,
+    const handleCreateUser = (data: FormValues) => {
+        let roles = data.roles
+        let newUser = {}
+        if (role.includes("Expert")){
+            newUser = {
+                name: data.name,
+                email: data.email,
+                pass: data.pass,
+                profilePic: "default_profile.png",
+                userRole: role,
+                address: data.address,
+                description: data.description,
+                phone: data.phone,
+                webPage: data.webPage,
+                specialty: data.specialty,
+                isNutritionist: data.isNutritionist,
+                isCoach: data.isCoach
+            }
+        }
+        else if (role.includes("Store")){
+            newUser = {
+                name: data.name,
+                email: data.email,
+                pass: data.pass,
+                profilePic: "default_profile.png",
+                userRole: role,
+                address: data.address,
+                description: data.description,
+                phone: data.phone,
+                webPage: data.webPage,
+            }
+        }
+        else if (role.includes("Tech") || roles.includes("Core")) {
+            newUser = {
+                name: data.name,
+                email: data.email,
+                pass: data.pass,
+                profilePic: "default_profile.png",
+                userRole: role,
+            }
+        }
+        else{
+            setSnackbarMsg("Error al crear usuario")   
+            setOpenNewUserDialog(false)
+            return
+        }
+        api.post(usersURL, newUser, {withCredentials: true,
             headers: {
                 Authorization: "Bearer " + token
             }
@@ -251,26 +466,52 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                         activationExpire: new Date(res.data.activationExpire),
                     }
                 ]);
-                setSnackbarMsg("Técnico creado con éxito")   
-                setOpenNewTechDialog(false)
+                setSnackbarMsg("Usuario creado con éxito")   
+                setOpenNewUserDialog(false)
             }                
         })
         .catch(error => {
-            setSnackbarMsg("Error al crear técnico")   
-            setOpenNewTechDialog(false)
+            setSnackbarMsg("Error al crear usuario")   
+            setOpenNewUserDialog(false)
         })
         .finally(()=> {
             setSnackbarOpen(true)
         })
     }
 
+    const handleOpenCreateUser = () => {
+        reset()
+        setOpenNewUserDialog(true)
+        setPage(0)
+        setRole(["Core"])
+    }
+
+    const handleCloseCreateUser = () => {
+        setOpenNewUserDialog(false)
+    }
+
+    const handleGoBackCreateUser = () => {
+        reset()
+        setPage(0)
+    }
 
     const handleStateChange = (id:string, newState: string) => {
+        let requestBody = {}
+        if (newState==="Active"){
+            requestBody = {
+                isActive: true,
+                isPending: false
+            }
+        }
+        else{
+            requestBody = {
+                isActive: false,
+                isPending: false,
+                reason
+            }
+        }
         api.patch(`${usersURL}/${id}`,
-            {
-                isActive:newState==="Active"?true:false,
-                isPending:false
-            }, 
+            requestBody, 
             {
                 withCredentials: true,
                 headers: {
@@ -301,6 +542,8 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
         .finally(()=>{
             setSnackbarMsg(newState==="Active"?'Cuenta activada correctamente':'Cuenta desactivada correctamente');
             setSnackbarOpen(true)
+            setShowFlipStateDialog(false)
+            setReason("")
         })
        
     };
@@ -368,6 +611,12 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
         );
     };
 
+    const handleRoleSelect = (selectedRole: string[], userTypeName: string) => {
+        setUserTypeName(userTypeName)
+        setRole(selectedRole);
+        setPage(1); // Move to the next page (form)
+    };
+
     const handleChangeRoles = () => {
         // Logic to handle adding roles (e.g., making a request to the backend)
         api.patch(`${usersURL}/${selectedUser.id}/roles`,
@@ -395,7 +644,28 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
         });
     };
 
-
+    const CustomToolbar: React.FC = () => (
+        <GridToolbarContainer
+        sx={{
+            border: "2px solid",
+            borderColor: 'primary.dark', // Change the background color
+        }}>
+            <GridToolbarColumnsButton/>
+            <GridToolbarFilterButton/>
+            <GridToolbarDensitySelector/>
+            <GridToolbarExport />
+            <Tooltip title="Crear usuario" key="create" placement="bottom">
+                <Button
+                    onClick={handleOpenCreateUser}
+                    sx={{fontSize: 13}}
+                >
+                    <AddIcon/>
+                    Crear
+                </Button>
+            </Tooltip>
+            
+        </GridToolbarContainer>
+    );
 
 
       return ( 
@@ -408,7 +678,7 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
             <Box 
             sx={{
                 display: "flex",
-                flexDirection: "column",
+                flexDirection: "row",
                 justifyContent: "center",
                 alignItems: "center",
                 maxWidth: "500px",
@@ -424,13 +694,21 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                 borderLeft: "5px solid",
                 borderRight: "5px solid",
                 borderColor: "secondary.main",
-                boxSizing: "border-box"
+                boxSizing: "border-box",
+                color: "primary.contrastText"
             }}
             >
-                <Typography variant='h5' width="100%" sx={{py:0.5}} color= "primary.contrastText">
-                    Usuarios
-                </Typography>
-            </Box>
+                <Box sx={{display: "flex", flex: 1}}>
+                        <NavigateBack/>
+                    </Box>
+                    <Box sx={{display: "flex", flex: 4}}>
+                        <Typography variant='h5' width="100%"  color="primary.contrastText" sx={{py:1}}>
+                            Usuarios
+                        </Typography>
+                    </Box>
+                    <Box sx={{display: "flex", flex: 1}}>
+                    </Box>
+                </Box>
             <Box sx={{
                 display: "flex",
                 flexDirection: "column",
@@ -450,21 +728,47 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                         pagination: {
                             paginationModel: { page: 0, pageSize: 10 },
                         },
+                        sorting: {
+                            sortModel: [
+                                { field: 'isPending', sort: 'desc' }, // Cambiar 'asc' a 'desc' si quieres orden descendente
+                            ],
+                        },
+                        columns: {
+                            columnVisibilityModel: {
+                                isSuspended: false, // Oculta la columna "isSuspended"
+                                isPending: false
+                            },
+                        },
                     }}
-                    slots={{ toolbar: GridToolbar }}
+                    slots={{ toolbar: CustomToolbar }}
                     pageSizeOptions={[5, 10]}
                     filterModel={filterModel}
                     onFilterModelChange={(newFilterModel) => setFilterModel(newFilterModel)}
                     localeText={esES.components.MuiDataGrid.defaultProps.localeText} // Apply locale directly
+                    getRowClassName={(params) => {
+                        if (params.row.isPending) {
+                            return "row-pending";
+                        }
+                        return params.indexRelativeToCurrentPage % 2 === 0 ? "row-even" : "row-odd";
+                    }}
                     sx={{
-                        
                         width: "100%", 
                         minWidth: 0,
-                        '& .MuiDataGrid-row:nth-of-type(odd)': {
+                        '& .MuiDataGrid-row:hover': {
+                            backgroundColor: 'transparent', // Evitar el cambio de color al hacer hover
+                        },
+                        '& .MuiDataGrid-row.MuiDataGrid-row.pending': {
+                            backgroundColor: 'warning.light', // Color personalizado para las filas pendientes
+                        },
+                        '& .row-pending': {
+                            backgroundColor: 'warning.light',
+                            fontFamily: "Montserrat"
+                        },
+                        '& .row-odd:not(.row-pending)': {
                             backgroundColor: 'secondary.light', // Light grey for odd rows
                             fontFamily: "Montserrat"
                         },
-                        '& .MuiDataGrid-row:nth-of-type(even)': {
+                        '& .row-even:not(.row-pending)': {
                             backgroundColor: '#ffffff', // White for even rows
                             fontFamily: "Montserrat"
                         },
@@ -481,11 +785,19 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                             fontFamily: "Righteous",
                             whiteSpace: "normal"
                         },
-                        
                     }}
                     />
                     
-                    <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+                    <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}
+                    PaperProps={{
+                        sx: {
+                            maxHeight: '80vh', 
+                            width: "100vw",
+                            maxWidth: "450px",
+                            margin:0
+                        }
+                    }} 
+                    >
                         <DialogTitle>Borrar usuario</DialogTitle>
                         <DialogContent>
                             ¿Seguro que desea borrar a este usuario?
@@ -499,18 +811,65 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                             </Button>
                         </DialogActions>
                     </Dialog>
-                    <Dialog open={showRejectDialog} onClose={() => setShowRejectDialog(false)}>
+                    <Dialog open={showFlipStateDialog} onClose={() => {
+                        setReason("")
+                        setShowFlipStateDialog(false)
+                    }}
+                    PaperProps={{
+                        sx: {
+                            maxHeight: '80vh', 
+                            width: "100vw",
+                            maxWidth: "450px",
+                            margin:0
+                        }
+                    }}
+                    >
+                        <DialogTitle>{selectedUser?.isActive?<>Desactivar</>:<>Activar</>} cuenta</DialogTitle>
+                        <DialogContent>
+                            ¿Seguro que desea {selectedUser?.isActive?<>desactivar</>:<>activar</>} esta cuenta?
+                            {
+                                selectedUser?.isActive
+                                && <TextField 
+                                value={reason} 
+                                label="Motivo"  
+                                variant="standard"
+                                onChange={(e) => setReason(e.target.value)}
+                                multiline
+                                rows={2}
+                                />
+                            }
+                            
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => {
+                                setReason("")
+                                setShowFlipStateDialog(false)
+                            }} color="primary">
+                                No
+                            </Button>
+                            <Button onClick={() => handleStateChange(selectedUser?.id, selectedUser?.isActive?"Inactive":"Active")} 
+                            disabled={selectedUser?.isActive && reason===""} variant="contained" color="primary">
+                                Sí
+                            </Button>
+                            
+                        </DialogActions>
+                    </Dialog>
+                    <Dialog open={showRejectDialog} onClose={() => {
+                        setShowRejectDialog(false)
+                        setReason("")
+                    }}
+                    PaperProps={{
+                        sx: {
+                            maxHeight: '80vh', 
+                            width: "100vw",
+                            maxWidth: "450px",
+                            margin:0
+                        }
+                    }}
+                    >
                         <DialogTitle>Rechazar cuenta</DialogTitle>
                         <DialogContent>
                             ¿Seguro que desea rechazar esta solicitud?
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={() => setOpenDeleteDialog(false)} color="primary">
-                                No
-                            </Button>
-                            <Button onClick={() => handleDelete(selectedUser?.id)} disabled={reason===""} variant="contained" color="primary">
-                                Sí
-                            </Button>
                             <TextField 
                             value={reason} 
                             label="Razón de rechazo"  
@@ -519,39 +878,46 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                             multiline
                             rows={2}
                             />
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => {
+                                setReason("")
+                                setShowRejectDialog(false)
+                            }} color="primary">
+                                No
+                            </Button>
+                            <Button onClick={() => handleDelete(selectedUser?.id)} disabled={reason===""} variant="contained" color="primary">
+                                Sí
+                            </Button>
+                            
                         </DialogActions>
                     </Dialog>
-                    <Dialog open={openEditDialog} onClose={handleCloseEditDialog}>
-                        <DialogTitle>Modificar usuario</DialogTitle>
+                    <Dialog open={openEditDialog} onClose={handleCloseEditDialog}
+                    PaperProps={{
+                        sx: {
+                            maxHeight: '80vh', 
+                            width: "100vw",
+                            maxWidth: "600px",
+                            margin:0
+                        }
+                    }} 
+                    >
+                        <DialogTitle>
+                            <Box sx={{display:"flex", justifyContent: "space-between"}}>
+                                Usuario - {selectedUser?.name || ""}
+                                <IconButton
+                                color="inherit"
+                                onClick={handleCloseEditDialog}
+                                sx={{p:0}}
+                                >
+                                    <CloseIcon />
+                                </IconButton>
+                            </Box>
+                        </DialogTitle>
                         <DialogContent>
                             <UserAccountEdit selectedUser={selectedUser}/>
                         </DialogContent>
-                        <DialogActions>
-                            {selectedUser?.isPending && (
-                                <Button variant="contained" onClick={()=>handleStateChange(selectedUser.id, "Active")} color="primary">Aceptar cuenta</Button>
-                            )} 
-                            {selectedUser?.isPending && (
-                                <Button variant="contained" onClick={()=>setShowRejectDialog(true)} color="primary">Rechazar cuenta</Button>
-                            )} 
-                            {selectedUser?.isActive && (
-                                <Button variant="contained" onClick={()=>handleStateChange(selectedUser.id, "Inactive")} color="primary">Desactivar cuenta</Button>
-                            )}
-                            {!selectedUser?.isActive && !selectedUser?.isPending && (
-                                <Button variant="contained" onClick={()=>handleStateChange(selectedUser.id, "Active")} color="primary">Activar cuenta</Button>
-                            )}  
-                            {!selectedUser?.isPending && selectedUser?.isSuspended && (
-                                <Button variant="contained" onClick={()=>handleSuspendedChange(selectedUser.id, "NotSuspended")} color="primary">Restaurar cuenta</Button>
-                            )} 
-                            {!selectedUser?.isPending && !selectedUser?.isSuspended && (
-                                <Button variant="contained" onClick={()=>handleSuspendedChange(selectedUser.id, "Suspended")} color="primary">Suspender cuenta</Button>
-                            )} 
-                            <Button variant="contained" onClick={()=>{setShowChangeRolesDialog(true)}} color="primary">
-                               Cambiar roles
-                            </Button>        
-                            <Button variant="contained" onClick={handleCloseEditDialog} color="primary">
-                                Salir
-                            </Button>
-                        </DialogActions>
+                        
                     </Dialog>
                     <Snackbar
                         open={snackbarOpen}
@@ -563,126 +929,310 @@ const UserList: React.FC<{isAppBarVisible:boolean}> = ({ isAppBarVisible }) => {
                             {snackbarMsg}
                         </Alert>
                     </Snackbar>
-                    <Button onClick={()=>setOpenNewTechDialog(true)}
-                        variant="dark" 
-                        sx={{
-                            display: "flex",
-                            position: 'fixed',
-                            bottom: 0, // 16px from the bottom
-                            zIndex: 100, // High zIndex to ensure it's on top of everything
-                            height: "48px",
-                            width: "50%",
-                            maxWidth: "500px"
-                        }}
-                    >
-                        <AddIcon sx={{fontSize: 40}}></AddIcon>
-                        <Typography variant='subtitle1' color={"inherit"}>
-                            Crear técnico
-                        </Typography>
-                        
-                    </Button>
                     
-                    <Dialog open={openNewTechDialog} onClose={()=>{setOpenNewTechDialog(false)}} sx={{width: "90%", maxWidth: "500px", margin: "auto"}}>
-                        <form onSubmit={handleSubmit(handleCreateTech)} noValidate encType="multipart/form-data">
-                        <DialogTitle>Crear nuevo técnico</DialogTitle>
-                        <DialogContent>
-                           
-                                <TextField 
-                                    id="name" 
-                                    label="Nombre" 
-                                    type="text" 
-                                    variant="standard" 
-                                    inputProps={{maxLength: 100}}
-                                    fullWidth
-                                    sx={{my: 1}}
-                                    {...register("name", {required: "Ingresar nombre"})}
-                                    error={!!errors.name}
-                                    helperText = {errors.name?.message}
-                                />
-                        
-                                <TextField 
-                                    id="email" 
-                                    label="Email" 
-                                    type="email" 
-                                    variant="standard" 
-                                    inputProps={{maxLength: 100}}
-                                    fullWidth
-                                    sx={{my: 1}}
-                                    {...register("email", {required: "Ingresar email"})}
-                                    error={!!errors.email}
-                                    helperText = {errors.email?.message}
-                                />
-
-                                <TextField 
-                                    id="pass" 
-                                    label="Contraseña" 
-                                    type={showPass ? 'text' : 'password'}
-                                    variant="standard" 
-                                    inputProps={{maxLength: 100}}
-                                    fullWidth
-                                    sx={{my: 1}}
-                                    {...register("pass", {required: "Ingresar contraseña", 
-                                                                minLength: {
-                                                                    value: 8,
-                                                                    message: "Mínimo 8 caractéres"
-                                                                },
-                                                                pattern: {
-                                                                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/,
-                                                                    message: "Contraseña inválida"
-                                                                }
-
-                                    })}
-                                    error={!!errors.pass}
-                                    helperText = {errors.pass?.message}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                            <IconButton
-                                                edge="end"
-                                                onClick={()=>setShowPass(!showPass)}
-                                                aria-label="toggle password visibility"
-                                            >
-                                                {showPass? <Visibility /> : <VisibilityOff />}
-                                            </IconButton>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-
-                                <TextField 
-                                    id="confirmPassword" 
-                                    label="Repetir contraseña" 
-                                    type={showConfirmPass ? 'text' : 'password'}
-                                    variant="standard" 
-                                    inputProps={{maxLength: 100}}
-                                    fullWidth
-                                    sx={{my: 1}}
-                                    {...register("confirmPassword", {required: "Repetir contraseña",
-                                                                    validate: () => watch("pass")!=watch("confirmPassword")?"Contraseñas no coinciden": true
-                                    })}
-                                    error={!!errors.confirmPassword}
-                                    helperText = {errors.confirmPassword?.message}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                            <IconButton
-                                                edge="end"
-                                                onClick={()=>setShowConfirmPass(!showConfirmPass)}
-                                                aria-label="toggle password visibility"
-                                            >
-                                                {showConfirmPass? <Visibility /> : <VisibilityOff />}
-                                            </IconButton>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
+                    <Dialog open={openNewUserDialog} onClose={handleCloseCreateUser} 
+                    scroll="paper"
+                    PaperProps={{
+                        sx:{width: "100vw", 
+                            maxWidth: "500px", 
+                            margin: 0}
+                    }}
+                    >
+                        <DialogTitle
+                        sx={{
+                            position: "sticky",
+                            top: 0,
+                            zIndex: 1,
+                            bgcolor: "primary.contrastText"
+                        }}
+                        >
+                            <Box sx={{display:"flex", justifyContent: "space-between"}}>
+                                {page===1 && <IconButton
+                                color="inherit"
+                                onClick={handleGoBackCreateUser}
+                                sx={{p:0}}
+                                >
+                                    <ArrowBackIcon/>
+                                </IconButton>}
+                                Crear usuario {userTypeName}
+                                <IconButton
+                                color="inherit"
+                                onClick={handleCloseCreateUser}
+                                sx={{p:0}}
+                                >
+                                    <CloseIcon />
+                                </IconButton>
+                            </Box>
                             
-                        </DialogContent>
-                        <DialogActions>       
-                            <Button type="submit" variant="contained" > Crear cuenta</Button>
-                            <Button variant="contained" onClick={()=>setOpenNewTechDialog(false)} color="primary">
-                                Salir
-                            </Button>
+                        </DialogTitle>
+                        <form onSubmit={handleSubmit(handleCreateUser)} noValidate encType="multipart/form-data">
+                        {page === 0 ? ( // Page 1: Role selection
+                            <DialogContent>
+                                <Box 
+                                sx={{
+                                    width: "100%", 
+                                    display: "flex", 
+                                    flexDirection: "column", 
+                                    alignItems: "center", 
+                                    justifyContent: "center",
+                                    gap:2
+                                }}>
+                                    <Typography variant="h6">Tipo de usuario</Typography>
+                                    <Button fullWidth variant="contained" onClick={() => handleRoleSelect(['Core'], "Común")}>Común</Button>
+                                    <Button fullWidth variant="contained" onClick={() => handleRoleSelect(["Core", 'Expert'], "Nutricionista")}>Nutricionista</Button>
+                                    <Button fullWidth variant="contained" onClick={() => handleRoleSelect(["Core", "Store"], "Tienda")}>Tienda</Button>
+                                    <Button fullWidth variant="contained" onClick={() => handleRoleSelect(["Core", "Tech"], "Soporte")}>Soporte</Button>
+                                </Box>
+                            </DialogContent>
+                        )
+                        : ( // Page 2: Form with user details
+                            <>
+                                <DialogContent>
+                                    <TextField
+                                        id="name"
+                                        label="Nombre"
+                                        type="text"
+                                        variant="standard"
+                                        inputProps={{
+                                            maxLength: 100,
+                                            form: {
+                                                autocomplete: 'off',
+                                            },
+                                        }}
+                                        fullWidth
+                                        sx={{ my: 1 }}
+                                        {...register("name", { required: "Ingresar nombre" })}
+                                        error={!!errors.name}
+                                        helperText={errors.name?.message}
+                                    />
+                                    <TextField
+                                        id="email"
+                                        label="Email"
+                                        type="email"
+                                        variant="standard"
+                                        autoComplete="off"
+                                        inputProps={{
+                                            maxLength: 100,
+                                            form: {
+                                                autocomplete: 'off',
+                                            },
+                                        }}
+                                        fullWidth
+                                        sx={{ my: 1 }}
+                                        {...register("email", { required: "Ingresar email" })}
+                                        error={!!errors.email}
+                                        helperText={errors.email?.message}
+                                    />
+                                    <TextField
+                                        id="pass"
+                                        autoComplete="off"
+                                        label="Contraseña"
+                                        type={showPass ? 'text' : 'password'}
+                                        variant="standard"
+                                        inputProps={{
+                                            maxLength: 100,
+                                            form: {
+                                                autocomplete: 'off',
+                                            },
+                                        }}
+                                        fullWidth
+                                        sx={{ my: 1 }}
+                                        {...register("pass", {
+                                            required: "Ingresar contraseña",
+                                            minLength: { value: 8, message: "Mínimo 8 caractéres" },
+                                            pattern: {
+                                                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/,
+                                                message: "Contraseña inválida",
+                                            },
+                                        })}
+                                        error={!!errors.pass}
+                                        helperText={errors.pass?.message}
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        edge="end"
+                                                        onClick={() => setShowPass(!showPass)}
+                                                        aria-label="toggle password visibility"
+                                                    >
+                                                        {showPass ? <Visibility /> : <VisibilityOff />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                    {password && (
+                                    <List>
+                                        {passwordRequirements.map((req, index) => (
+                                        <ListItem key={index} disableGutters>
+                                            {req.valid ? (
+                                            <CheckCircleRoundedIcon color="primary" fontSize="small" sx={{ mr: 1 }} />
+                                            ) : (
+                                            <CancelRoundedIcon color="error" fontSize="small" sx={{ mr: 1 }} />
+                                            )}
+                                            <ListItemText
+                                            primary={
+                                                <Typography
+                                                variant="subtitle2"
+                                                color={req.valid ? "primary.main" : "error.main"}
+                                                >
+                                                {req.text}
+                                                </Typography>
+                                            }
+                                            />
+                                        </ListItem>
+                                        ))}
+                                    </List>
+                                    )}
+                                    <TextField
+                                        id="confirmPassword"
+                                        label="Repetir contraseña"
+                                        type={showConfirmPass ? 'text' : 'password'}
+                                        variant="standard"
+                                        inputProps={{
+                                            maxLength: 100,
+                                            form: {
+                                                autocomplete: 'off',
+                                            },
+                                        }}
+                                        fullWidth
+                                        sx={{ my: 1 }}
+                                        {...register("confirmPassword", {
+                                            required: "Repetir contraseña",
+                                            validate: () => watch("pass") !== watch("confirmPassword") ? "Contraseñas no coinciden" : true,
+                                        })}
+                                        error={!!errors.confirmPassword}
+                                        helperText={errors.confirmPassword?.message}
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        edge="end"
+                                                        onClick={() => setShowConfirmPass(!showConfirmPass)}
+                                                        aria-label="toggle password visibility"
+                                                    >
+                                                        {showConfirmPass ? <Visibility /> : <VisibilityOff />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                    {
+                                        (role.includes("Store") || role.includes("Expert")) && <>
+                                        <TextField 
+                                        sx={{my:1}}
+                                        id="address" 
+                                        label="Dirección" 
+                                        type="text" 
+                                        variant="standard" 
+                                        fullWidth
+                                        {...register("address")}
+                                        error={!!errors.address}
+                                        helperText = {errors.address?.message}
+                                        inputProps={{ maxLength: 100 }}
+                                        />
+
+                                        <TextField 
+                                        sx={{my:1}}
+                                        id="description" 
+                                        label="Descripción" 
+                                        type="text" 
+                                        variant="standard" 
+                                        multiline
+                                        fullWidth
+                                        rows={5} // Default number of rows
+                                        maxRows={5} // Maximum number of rows it can expand to
+                                        {...register("description", {required: "Ingresar descripción breve"})}
+                                        error={!!errors.description}
+                                        helperText = {errors.description?.message}
+                                        inputProps={{ maxLength: 750 }}
+                                        />
+
+                                        <TextField 
+                                        sx={{ my: 1 }}
+                                        id="phone" 
+                                        label="Teléfono" 
+                                        type="tel" 
+                                        variant="standard" 
+                                        fullWidth
+                                        inputProps={{
+                                            maxLength: 15, // Enforces a maximum input length
+                                        }}
+                                        {...register("phone", {
+                                            pattern: {
+                                                value: /^\+56\s?(2|9)\s?\d{4}(\d{4}|\s?\d{4})$/,
+                                                message: "Formato incorrecto",
+                                            }
+                                        })}
+                                        error={!!errors.phone}
+                                        helperText={errors.phone?.message || ""}
+                                        />
+                                        <FormHelperText>
+                                            ej: +56 9 1234 5678
+                                        </FormHelperText>
+
+                                        <TextField 
+                                            sx={{my:1}}
+                                            id="webPage" 
+                                            label="Página web" 
+                                            type="text" 
+                                            variant="standard" 
+                                            fullWidth
+                                            {...register("webPage")}
+                                            error={!!errors.webPage}
+                                            helperText = {errors.webPage?.message}
+                                            inputProps={{ maxLength: 100 }}
+                                        />
+                                    </>
+                                    }
+                                    {
+                                        role.includes("Expert") && <>
+                                        <TextField 
+                                            sx={{my:1}}
+                                            id="specialty" 
+                                            label="Especialización" 
+                                            type="text" 
+                                            variant="standard" 
+                                            fullWidth
+                                            {...register("specialty", {required: "Ingresar especialización"})}
+                                            error={!!errors.specialty}
+                                            helperText = {errors.specialty?.message}
+                                            inputProps={{ maxLength: 100 }}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={watch("isNutritionist")}
+                                                    onChange={(e) => form.setValue("isNutritionist", e.target.checked)}
+                                                />
+                                            }
+                                            label="Nutricionista"
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={watch("isCoach")}
+                                                    onChange={(e) => form.setValue("isCoach", e.target.checked)}
+                                                />
+                                            }
+                                            label="Coach"
+                                        />
+                                        </>
+                                    }
+                                </DialogContent>
+                            </>
+                        )
+                        }
+                        <DialogActions>   
+                            {page===1 && <> 
+                                <Button onClick={handleGoBackCreateUser} color="primary">
+                                    Volver
+                                </Button>  
+                                <Button type="submit" variant="contained" disabled={!isFormValid}> 
+                                    Crear cuenta
+                                </Button>
+                                </>  
+                            }
                         </DialogActions>
                         
                         </form>

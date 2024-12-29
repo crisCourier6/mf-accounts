@@ -7,8 +7,6 @@ import { User } from "../interfaces/User";
 
 const UserAccountEdit: React.FC<{selectedUser:User}> = (params) => {
     const [user, setUser] = useState<User>({id:""})
-
-    const url = "/users/" + params.selectedUser.id
     useEffect(()=>{
        setUser(params.selectedUser)
     },[params])
@@ -22,13 +20,14 @@ const UserAccountEdit: React.FC<{selectedUser:User}> = (params) => {
                 <Box
                 sx={{
                     border: "5px solid",
-                    borderColor: "primary.main",
+                    borderColor: params.selectedUser.isActive? "secondary.dark" : "warning.dark",
                     width:"90%",
                 }}
                 > 
                     <Paper elevation={0} square={true} sx={{
-                        bgcolor: "primary.main",
-                        color: "primary.contrastText",
+                        borderColor: params.selectedUser.isActive? "secondary.dark" : "warning.dark",
+                        bgcolor: params.selectedUser.isActive? "secondary.dark" : "warning.dark",
+                        color: params.selectedUser.isActive? "primary.contrastText" : "warning.contrastText",
                         pb: "5px",
                         justifyContent: "flex-start",
                         display: "flex",
@@ -46,9 +45,9 @@ const UserAccountEdit: React.FC<{selectedUser:User}> = (params) => {
                         <Typography variant='subtitle1' color= "primary.dark">
                             <li><span style={{fontWeight: "bold"}}>Email: </span>{user.email}</li>
                         </Typography>
-                        <Typography variant='subtitle1' color= "primary.dark">
+                        {/* <Typography variant='subtitle1' color= "primary.dark">
                             <li><span style={{fontWeight: "bold"}}>Rol: </span>{user.userHasRole?.map((userRole: any) => userRole.role?.name).filter(Boolean).join(", ")}</li>
-                        </Typography>
+                        </Typography> */}
                         <Typography variant='subtitle1' color= "primary.dark">
                             <li><span style={{fontWeight: "bold"}}>Miembro desde: </span>{user.createdAt?.toLocaleDateString("es-CL", )}</li>
                         </Typography>
@@ -61,9 +60,9 @@ const UserAccountEdit: React.FC<{selectedUser:User}> = (params) => {
                         <Typography variant='subtitle1' color= "primary.dark">
                             <li><span style={{fontWeight: "bold"}}>¿Pendiente?: </span>{user.isPending?"Sí":"No"}</li>
                         </Typography> 
-                        <Typography variant='subtitle1' color= "primary.dark">
+                        {/* <Typography variant='subtitle1' color= "primary.dark">
                             <li><span style={{fontWeight: "bold"}}>¿Suspendida?: </span>{user.isSuspended?"Sí":"No"}</li>
-                        </Typography> 
+                        </Typography>  */}
                     </ul>
                     </Paper>
 
@@ -72,13 +71,14 @@ const UserAccountEdit: React.FC<{selectedUser:User}> = (params) => {
                 {user.expertProfile && <Box
                 sx={{
                     border: "5px solid",
-                    borderColor: "primary.main",
+                    borderColor: params.selectedUser.isActive? "secondary.dark" : "warning.dark",
                     width:"90%",
                 }}
                 > 
                     <Paper elevation={0} square={true} sx={{
-                        bgcolor: "primary.main",
-                        color: "primary.contrastText",
+                        borderColor: params.selectedUser.isActive? "secondary.dark" : "warning.dark",
+                        bgcolor: params.selectedUser.isActive? "secondary.dark" : "warning.dark",
+                        color: params.selectedUser.isActive? "primary.contrastText" : "warning.contrastText",
                         pb: "5px",
                         justifyContent: "flex-start",
                         display: "flex",
@@ -124,13 +124,14 @@ const UserAccountEdit: React.FC<{selectedUser:User}> = (params) => {
             {user.storeProfile && <Box
                 sx={{
                     border: "5px solid",
-                    borderColor: "primary.main",
+                    borderColor: params.selectedUser.isActive? "secondary.dark" : "warning.dark",
                     width:"90%",
                 }}
                 > 
                     <Paper elevation={0} square={true} sx={{
-                        bgcolor: "primary.main",
-                        color: "primary.contrastText",
+                        borderColor: params.selectedUser.isActive? "secondary.dark" : "warning.dark",
+                        bgcolor: params.selectedUser.isActive? "secondary.dark" : "warning.dark",
+                        color: params.selectedUser.isActive? "primary.contrastText" : "warning.contrastText",
                         pb: "5px",
                         justifyContent: "flex-start",
                         display: "flex",

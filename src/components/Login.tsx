@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import api from "../api";
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import CloseIcon from '@mui/icons-material/Close';
 // import { DevTool } from '@hookform/devtools';
 
 type FormValues = {
@@ -195,12 +196,24 @@ const Login: React.FC = () => {
                 PaperProps={{
                     sx: {
                         maxHeight: '80vh', 
-                        width: "85vw",
-                        maxWidth: "450px"
+                        width: "100vw",
+                        maxWidth: "450px",
+                        margin:0
                     }
                 }} 
             >
-                <DialogTitle>Restablecer contraseña</DialogTitle>
+                <DialogTitle>
+                    <Box sx={{display:"flex", justifyContent: "space-between"}}>
+                        Restablecer contraseña
+                        <IconButton
+                        color="inherit"
+                        onClick={() => setShowPassResetDialog(false)}
+                        sx={{p:0}}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    </Box>
+                </DialogTitle>
                 <DialogContent>
                     <Typography variant="subtitle1">
                         Ingresa el correo asociado a tu cuenta EyesFood. Te enviaremos un enlace donde podrás establecer una contraseña nueva.
@@ -228,7 +241,6 @@ const Login: React.FC = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                <Button onClick={() => setShowPassResetDialog(false)}>Cerrar</Button>
                 <Button
                     onClick={handleResetPassword}
                     disabled={!resetEmail || resetLoading}

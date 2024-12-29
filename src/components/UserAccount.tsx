@@ -1,6 +1,9 @@
 import React, {useEffect, useState } from "react";
 import { Button, Box, Alert, Paper, Grid, Dialog, DialogContent, DialogActions, TextField, 
-    Snackbar, SnackbarCloseReason, InputAdornment, IconButton, Typography, DialogTitle, FormControlLabel, Checkbox} from '@mui/material';
+    Snackbar, SnackbarCloseReason, InputAdornment, IconButton, Typography, DialogTitle, FormControlLabel, Checkbox,
+    List,
+    ListItem,
+    ListItemText} from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from "../api";
 // import { DevTool } from '@hookform/devtools';
@@ -15,6 +18,10 @@ import DiaryIcon from "../svgs/DiaryIcon";
 import FoodEditIcon from "../svgs/FoodEditIcon";
 import StatsIcon from "../svgs/StatsIcon";
 import NotificationManagerIcon from "../svgs/NotificationManagerIcon";
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
+import CloseIcon from '@mui/icons-material/Close';
+import NavigateBack from "./NavigateBack";
 
 type PasswordValues = {
     pass: string,
@@ -39,6 +46,12 @@ type ExpertValues = {
     isNutritionist: boolean
 }
 
+type Option = {
+    name:string,
+    function: () => void
+    icon: any
+  }
+
 const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ isAppBarVisible, onReady }) => {
     const navigate = useNavigate()
     const { id } = useParams()
@@ -56,6 +69,27 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
     });
     const { register: registerPassword, handleSubmit: handleSubmitPassword, formState: passwordFormState, watch } = passwordForm;
     const { errors: passwordErrors, isValid: isPasswordValid } = passwordFormState;
+
+    const password = watch("pass")
+
+    const passwordRequirements = [
+        {
+          text: "Mínimo 8 caracteres",
+          valid: password?.length >= 8,
+        },
+        {
+          text: "Al menos una letra mayúscula",
+          valid: /[A-Z]/.test(password || ""),
+        },
+        {
+          text: "Al menos una letra minúscula",
+          valid: /[a-z]/.test(password || ""),
+        },
+        {
+          text: "Al menos un número",
+          valid: /\d/.test(password || ""),
+        },
+      ];
 
     // Second form (for store details)
     const storeForm = useForm<StoreValues>({
@@ -186,14 +220,50 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
         navigate("/stats")
       }
 
-    const optionsUser = [
-        {name: "Preferencias alimenticias", function: handleFoodPrefs, icon: <FoodPrefsIcon width={"100%"} height={"auto"}/>},
-        {name: "Historial de alimentos", function: handleFoodHistory, icon: <HistoryIcon width={"100%"} height={"auto"}/>},
-        {name: "Diario alimenticio", function: handleFoodDiary, icon: <DiaryIcon width={"100%"} height={"auto"}/>},
-        {name: "Mis aportes", function: handleFoodEdits, icon: <FoodEditIcon width={"100%"} height={"auto"}/>},
-        {name: "Mis medidas", allowedRoles: ["Core"], function: handleStats, icon: <StatsIcon width='100%' height= 'auto'/>},
-        {name: "Notificaciones", allowedRoles: ["Core"], function: handleNotif, icon: <NotificationManagerIcon width='100%' height= 'auto'/>},
-    ]
+    const [optionsUser, setOptionsUser] = useState<Option[]>([])
+
+    useEffect(()=>{
+        const url = window.location.href
+        if (e_id){
+            setOptionsUser(
+                [
+                    {name: "Preferencias alimenticias", function: handleFoodPrefs, icon: <FoodPrefsIcon width={"100%"} height={"auto"}/>},
+                    {name: "Historial de alimentos", function: handleFoodHistory, icon: <HistoryIcon width={"100%"} height={"auto"}/>},
+                    {name: "Diario alimenticio", function: handleFoodDiary, icon: <DiaryIcon width={"100%"} height={"auto"}/>},
+                    {name: "Mis aportes", function: handleFoodEdits, icon: <FoodEditIcon width={"100%"} height={"auto"}/>},
+                    {name: "Mis medidas", function: handleStats, icon: <StatsIcon width='100%' height= 'auto'/>},
+                    //{name: "Notificaciones", function: handleNotif, icon: <NotificationManagerIcon width='100%' height= 'auto'/>},
+                ]
+            )
+        }
+        else if (s_id){
+            setOptionsUser(
+                [
+                ]
+            )
+        }
+        else if(url.includes("admin")) {
+            setOptionsUser(
+                [
+                ]
+            )
+        }
+
+        else {
+            setOptionsUser(
+                [
+                    {name: "Preferencias alimenticias", function: handleFoodPrefs, icon: <FoodPrefsIcon width={"100%"} height={"auto"}/>},
+                    {name: "Historial de alimentos", function: handleFoodHistory, icon: <HistoryIcon width={"100%"} height={"auto"}/>},
+                    {name: "Diario alimenticio", function: handleFoodDiary, icon: <DiaryIcon width={"100%"} height={"auto"}/>},
+                    {name: "Mis aportes", function: handleFoodEdits, icon: <FoodEditIcon width={"100%"} height={"auto"}/>},
+                    {name: "Mis medidas", function: handleStats, icon: <StatsIcon width='100%' height= 'auto'/>},
+                    //{name: "Notificaciones", function: handleNotif, icon: <NotificationManagerIcon width='100%' height= 'auto'/>},
+                ]
+            )
+        }
+
+    }, [e_id])
+    
 
     const handleStoreCatalogue = () => {
         navigate("/stores/" + s_id + "/catalogue")
@@ -323,7 +393,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                 <Box 
                 sx={{
                     display: "flex",
-                    flexDirection: "column",
+                    flexDirection: "row",
                     justifyContent: "center",
                     alignItems: "center",
                     maxWidth: "500px",
@@ -339,12 +409,20 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                     borderLeft: "5px solid",
                     borderRight: "5px solid",
                     borderColor: "secondary.main",
-                    boxSizing: "border-box"
+                    boxSizing: "border-box",
+                    color: "primary.contrastText"
                   }}
                 >
-                    <Typography variant='h5' width="100%" sx={{py:0.5}} color= "primary.contrastText">
-                        Mi perfil
-                    </Typography>
+                    <Box sx={{display: "flex", flex: 1}}>
+                        <NavigateBack/>
+                    </Box>
+                    <Box sx={{display: "flex", flex: 4}}>
+                        <Typography variant='h6' width="100%"  color="primary.contrastText" sx={{py:1}}>
+                            Mi perfil
+                        </Typography>
+                    </Box>
+                    <Box sx={{display: "flex", flex: 1}}>
+                    </Box>
                 </Box>
             <Box
                 sx={{
@@ -415,7 +493,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                         </Button>
                     </Paper>
                     
-                </Box>
+            </Box>
                 {user.expertProfile && (
                     <Box
                     sx={{
@@ -574,165 +652,211 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                 </Box>
                 
 
-                    <Dialog open={showNameForm} scroll='paper' 
-                                sx={{width: "100%", 
-                                    maxWidth: "500px", 
-                                    margin: "auto"
-                                }}>
-                                
-                                <DialogContent>
-                                    <TextField 
-                                    id="name"
-                                    label="Nombre nuevo"
-                                    type="text"
-                                    fullWidth
-                                    variant="outlined"
-                                    value={newUserName}
-                                    onChange={handleNameChange}
-                                    inputProps={{maxLength: 100}}
-                                    >
-                                    </TextField>
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button variant="contained"
-                                    onClick={handleCloseNameForm}>
-                                        Cancelar
-                                    </Button>
-                                    <Button variant="contained" onClick={onSubmitName} disabled={newUserName==user.name || newUserName == ""} 
-                                    sx={{
-                                        
-                                    }} 
-                                    >
-                                        Aceptar
-                                    </Button>
-                                </DialogActions>
-                    </Dialog>
+                <Dialog open={showNameForm} scroll='paper' 
+                PaperProps={{
+                    sx: {width: "100vw", 
+                        maxWidth: "500px", 
+                        margin: 0
+                    }
+                }}
+                >
+                    <DialogTitle>
+                        <Box sx={{display:"flex", justifyContent: "space-between"}}>
+                            Cambiar nombre
+                            <IconButton
+                            color="inherit"
+                            onClick={handleCloseNameForm}
+                            sx={{p:0}}
+                            >
+                                <CloseIcon />
+                            </IconButton>
+                        </Box>
+                    </DialogTitle>       
+                    <DialogContent>
+                        <TextField 
+                        sx={{mt:2}}
+                        id="name"
+                        label="Nombre nuevo"
+                        type="text"
+                        fullWidth
+                        variant="outlined"
+                        value={newUserName}
+                        onChange={handleNameChange}
+                        inputProps={{maxLength: 100}}
+                        >
+                        </TextField>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="contained" onClick={onSubmitName} disabled={newUserName==user.name || newUserName == ""} 
+                        sx={{
+                            
+                        }} 
+                        >
+                            Guardar
+                        </Button>
+                    </DialogActions>
+                </Dialog>
                     
                     <Dialog open={showPassForm} scroll='paper' 
-                                sx={{width: "100%", 
-                                    maxWidth: "500px", 
-                                    margin: "auto"
-                                }}>
-                                <form onSubmit={handleSubmitPassword(onSubmitPassword)} noValidate encType="multipart/form-data" autoComplete="off">
-                                <DialogContent >
-                                    <TextField 
-                                    sx={{py: 1}}
-                                    id="oldPass"
-                                    label="Contraseña actual"
-                                    type={showOldPass ? 'text' : 'password'}
-                                    fullWidth
-                                    variant="outlined"
-                                    autoComplete="off"
-                                    inputProps={{maxLength: 100}}
-                                    {...registerPassword("oldPass", {required: "Ingresar contraseña", 
-                                        minLength: {
-                                            value: 8,
-                                            message: "Mínimo 8 caractéres"
-                                        },
-                                        pattern: {
-                                            value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/,
-                                            message: "Contraseña inválida"
-                                        }
+                    PaperProps={{
+                        sx: {width: "100vw", 
+                            maxWidth: "500px", 
+                            margin: 0,
+                            maxHeight: "80vh"
+                        }
+                    }}>
+                        <DialogTitle>
+                            <Box sx={{display:"flex", justifyContent: "space-between"}}>
+                                Cambiar contraseña
+                                <IconButton
+                                color="inherit"
+                                onClick={handleClosePassForm}
+                                sx={{p:0}}
+                                >
+                                    <CloseIcon />
+                                </IconButton>
+                            </Box>
+                        </DialogTitle>    
+                        <form onSubmit={handleSubmitPassword(onSubmitPassword)} noValidate encType="multipart/form-data" autoComplete="off">
+                        <DialogContent >
+                            <TextField 
+                            sx={{py: 1}}
+                            id="oldPass"
+                            label="Contraseña actual"
+                            type={showOldPass ? 'text' : 'password'}
+                            fullWidth
+                            variant="outlined"
+                            autoComplete="off"
+                            inputProps={{maxLength: 100}}
+                            {...registerPassword("oldPass", {required: "Ingresar contraseña", 
+                                minLength: {
+                                    value: 8,
+                                    message: "Mínimo 8 caractéres"
+                                },
+                                pattern: {
+                                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/,
+                                    message: "Contraseña inválida"
+                                }
 
-                                        })}
-                                        error={!!passwordErrors.oldPass}
-                                        helperText = {passwordErrors.oldPass?.message}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                            <IconButton
-                                                edge="end"
-                                                onClick={()=>setShowOldPass(!showOldPass)}
-                                                aria-label="toggle password visibility"
-                                            >
-                                                {showOldPass? <Visibility /> : <VisibilityOff />}
-                                            </IconButton>
-                                            </InputAdornment>
-                                        ),
-                                    }}
+                                })}
+                                error={!!passwordErrors.oldPass}
+                                helperText = {passwordErrors.oldPass?.message}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                    <IconButton
+                                        edge="end"
+                                        onClick={()=>setShowOldPass(!showOldPass)}
+                                        aria-label="toggle password visibility"
                                     >
-                                    </TextField>
-                                    <TextField 
-                                    sx={{py: 1}}
-                                    id="pass"
-                                    label="Contraseña nueva"
-                                    type={showNewPass ? 'text' : 'password'}
-                                    fullWidth
-                                    variant="outlined"
-                                    inputProps={{maxLength: 100}}
-                                    autoComplete="off"
-                                    {...registerPassword("pass", {required: "Ingresar contraseña", 
-                                        minLength: {
-                                            value: 8,
-                                            message: "Mínimo 8 caractéres"
-                                        },
-                                        pattern: {
-                                            value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
-                                            message: "Contraseña inválida"
-                                        }
+                                        {showOldPass? <Visibility /> : <VisibilityOff />}
+                                    </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
+                            >
+                            </TextField>
+                            <TextField 
+                            sx={{py: 1}}
+                            id="pass"
+                            label="Contraseña nueva"
+                            type={showNewPass ? 'text' : 'password'}
+                            fullWidth
+                            variant="outlined"
+                            inputProps={{maxLength: 100}}
+                            autoComplete="off"
+                            {...registerPassword("pass", {required: "Ingresar contraseña", 
+                                minLength: {
+                                    value: 8,
+                                    message: "Mínimo 8 caractéres"
+                                },
+                                pattern: {
+                                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+                                    message: "Contraseña inválida"
+                                }
 
-                                        })}
-                                        error={!!passwordErrors.pass}
-                                        helperText = {passwordErrors.pass?.message}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                            <IconButton
-                                                edge="end"
-                                                onClick={()=>setShowNewPass(!showNewPass)}
-                                                aria-label="toggle password visibility"
-                                            >
-                                                {showNewPass? <Visibility /> : <VisibilityOff />}
-                                            </IconButton>
-                                            </InputAdornment>
-                                        ),
-                                    }}
+                                })}
+                                error={!!passwordErrors.pass}
+                                helperText = {passwordErrors.pass?.message}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                    <IconButton
+                                        edge="end"
+                                        onClick={()=>setShowNewPass(!showNewPass)}
+                                        aria-label="toggle password visibility"
                                     >
-                                    </TextField>
-                                    <TextField 
-                                        sx={{py:1}}
-                                        id="confirmPass" 
-                                        label="Repetir contraseña nueva" 
-                                        type={showRepeatPass ? 'text' : 'password'}
-                                        fullWidth
-                                        variant="outlined" 
-                                        inputProps={{maxLength: 100}}
-                                        autoComplete="off"
-                                        {...registerPassword("confirmPass", {required: "Repetir contraseña",
-                                                                        validate: () => watch("pass")!=watch("confirmPass")?"Contraseñas no coinciden": true
-                                        })}
-                                        error={!!passwordErrors.confirmPass}
-                                        helperText = {passwordErrors.confirmPass?.message}
-                                        InputProps={{
-                                            endAdornment: (
-                                                <InputAdornment position="end">
-                                                <IconButton
-                                                    edge="end"
-                                                    onClick={()=>setShowRepeatPass(!showRepeatPass)}
-                                                    aria-label="toggle password visibility"
-                                                >
-                                                    {showRepeatPass? <Visibility /> : <VisibilityOff />}
-                                                </IconButton>
-                                                </InputAdornment>
-                                            ),
-                                        }}
+                                        {showNewPass? <Visibility /> : <VisibilityOff />}
+                                    </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
+                            >
+                            </TextField>
+                            {password && (
+                            <List>
+                                {passwordRequirements.map((req, index) => (
+                                <ListItem key={index} disableGutters>
+                                    {req.valid ? (
+                                    <CheckCircleRoundedIcon color="primary" fontSize="small" sx={{ mr: 1 }} />
+                                    ) : (
+                                    <CancelRoundedIcon color="error" fontSize="small" sx={{ mr: 1 }} />
+                                    )}
+                                    <ListItemText
+                                    primary={
+                                        <Typography
+                                        variant="subtitle2"
+                                        color={req.valid ? "primary.main" : "error.main"}
+                                        >
+                                        {req.text}
+                                        </Typography>
+                                    }
                                     />
-                                </DialogContent>
+                                </ListItem>
+                                ))}
+                            </List>
+                            )}
+                            <TextField 
+                                sx={{py:1}}
+                                id="confirmPass" 
+                                label="Repetir contraseña nueva" 
+                                type={showRepeatPass ? 'text' : 'password'}
+                                fullWidth
+                                variant="outlined" 
+                                inputProps={{maxLength: 100}}
+                                autoComplete="off"
+                                {...registerPassword("confirmPass", {required: "Repetir contraseña",
+                                                                validate: () => watch("pass")!=watch("confirmPass")?"Contraseñas no coinciden": true
+                                })}
+                                error={!!passwordErrors.confirmPass}
+                                helperText = {passwordErrors.confirmPass?.message}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                        <IconButton
+                                            edge="end"
+                                            onClick={()=>setShowRepeatPass(!showRepeatPass)}
+                                            aria-label="toggle password visibility"
+                                        >
+                                            {showRepeatPass? <Visibility /> : <VisibilityOff />}
+                                        </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </DialogContent>
+                        
+                        <DialogActions>
+                           
+                            <Button variant="contained" type="submit" disabled={!isPasswordValid}  
+                            sx={{
                                 
-                                <DialogActions>
-                                    <Button variant="contained"
-                                    onClick={handleClosePassForm}>
-                                        Cancelar
-                                    </Button>
-                                    <Button variant="contained" type="submit" disabled={!isPasswordValid}  
-                                    sx={{
-                                        
-                                    }} 
-                                    >
-                                        Aceptar
-                                    </Button>
-                                </DialogActions>
-                                </form>
+                            }} 
+                            >
+                                Guardar
+                            </Button>
+                        </DialogActions>
+                        </form>
                     </Dialog>
 
                     <Dialog open={showStoreForm} onClose={handleCloseStoreForm} 
