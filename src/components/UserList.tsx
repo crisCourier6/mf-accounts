@@ -661,9 +661,7 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
             border: "2px solid",
             borderColor: 'primary.dark', // Change the background color
         }}>
-            <GridToolbarColumnsButton/>
             <GridToolbarFilterButton/>
-            <GridToolbarDensitySelector/>
             <GridToolbarExport />
             <Tooltip title="Crear usuario" key="create" placement="bottom">
                 <Button
@@ -811,7 +809,9 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
                     >
                         <DialogTitle>Borrar usuario</DialogTitle>
                         <DialogContent>
-                            ¿Seguro que desea borrar a este usuario?
+                            <Typography variant="subtitle1">
+                            ¿Seguro que desea borrar a este usuario? Eliminar una cuenta implica eliminar todo rastro de este usuario en la aplicación. UTILIZAR ESTA FUNCIÓN CON EXTREMO CUIDADO.
+                            </Typography>
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={() => setOpenDeleteDialog(false)} color="primary">
