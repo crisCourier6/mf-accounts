@@ -148,7 +148,6 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
             }
         })
         .then((res)=>{
-            console.log(res.data)
             const transformedUser = {
                 ...res.data,
                 createdAt: new Date(res.data.createdAt), // Convert `createdAt` to a Date object
@@ -320,7 +319,6 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
     }
 
     const onSubmitPassword = (data: PasswordValues) => {
-        console.log(data)
         api.patch(url, {pass: data.pass, oldPass: data.oldPass},  
                         { 
                             withCredentials: true,
