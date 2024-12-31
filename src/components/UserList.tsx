@@ -8,12 +8,12 @@ import { Button, Box, Alert, Grid, Dialog, DialogContent, DialogActions, TextFie
 import { useNavigate } from 'react-router-dom';
 import api from "../api";
 import { useEffect, useState } from 'react';
-import { DataGrid, GridColDef, GridEventListener, GridFilterModel, GridRenderCellParams, GridToolbar, GridToolbarContainer, 
-    GridToolbarExport, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarDensitySelector  } from "@mui/x-data-grid"
+import { DataGrid, GridColDef, GridEventListener, GridFilterModel, GridRenderCellParams, GridToolbarContainer, 
+    GridToolbarExport, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarDensitySelector,  
+    GridComparatorFn} from "@mui/x-data-grid"
 import { esES } from '@mui/x-data-grid/locales';
 import { useForm } from "react-hook-form";
 import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
-import EditIcon from '@mui/icons-material/Edit';
 import UserAccountEdit from "./UserAccountEdit";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -27,10 +27,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import BlockIcon from '@mui/icons-material/Block';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import PendingIcon from '@mui/icons-material/Pending';
 import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
-import { toUnitless } from "@mui/material/styles/cssUtils";
 import NavigateBack from "./NavigateBack";
  
 type FormValues = {
@@ -48,8 +46,6 @@ type FormValues = {
     isNutritionist: boolean,
     isCoach: boolean
 }
-
-
 
 const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isAppBarVisible, userRoles }) => {
     const navigate = useNavigate()
@@ -204,8 +200,11 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
             translated = "Sin roles"
         }
         return translated
-        
     }
+
+    const roleComparator: GridComparatorFn<UserHasRole[]> = (v1, v2) =>
+        translateRoles(v1.map((userRole: any) => userRole.role?.name).filter(Boolean)) < translateRoles(v2.map((userRole: any) => userRole.role?.name).filter(Boolean)) ? -1 : 1
+    
     const columns: GridColDef[] = [
         {field: "name", headerName: "Nombre", flex: 1.2, headerClassName: "header-colors", headerAlign: "center"},
         {field: "email", headerName: "Email", flex: 2, headerClassName: "header-colors", headerAlign: "center"},
@@ -213,7 +212,7 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
             type: "date"
         },
         {
-            field: "roles",
+            field: "userHasRole",
             headerName: "Tipo",
             flex: 1,
             headerClassName: "header-colors",
@@ -226,6 +225,7 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
                 // Join the roles into a comma-separated string
                 return translateRoles(roles) // Handle case where there are no roles
             },
+            sortComparator: roleComparator
         },
         
         {field: "isActive", headerName: "Estado", flex: 1, headerClassName: "header-colors", headerAlign: "center", align: "center", 
@@ -418,7 +418,6 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
     };
 
     const handleCreateUser = (data: FormValues) => {
-        let roles = data.roles
         let newUser = {}
         if (role.includes("Expert")){
             newUser = {
@@ -449,7 +448,7 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
                 webPage: data.webPage,
             }
         }
-        else if (role.includes("Tech") || roles.includes("Core")) {
+        else if (role.includes("Tech") || role.includes("Core")) {
             newUser = {
                 name: data.name,
                 email: data.email,
@@ -469,6 +468,7 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
             }
         })
         .then((res)=>{
+            console.log(res.data)
             if(res.data.name){
                 setUsers((prevUsers) => [...prevUsers,
                     {
