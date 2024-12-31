@@ -67,10 +67,10 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
             confirmPass: ""
         }
     });
-    const { register: registerPassword, handleSubmit: handleSubmitPassword, formState: passwordFormState, watch } = passwordForm;
+    const { register: registerPassword, handleSubmit: handleSubmitPassword, formState: passwordFormState, watch: passWatch } = passwordForm;
     const { errors: passwordErrors, isValid: isPasswordValid } = passwordFormState;
 
-    const password = watch("pass")
+    const password = passWatch("pass")
 
     const passwordRequirements = [
         {
@@ -102,7 +102,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
             webPage: ""
         }
     });
-    const { register: registerStore, handleSubmit: handleSubmitStore, formState: storeFormState } = storeForm;
+    const { register: registerStore, handleSubmit: handleSubmitStore, formState: storeFormState, watch: storeWatch } = storeForm;
     const { errors: storeErrors, isValid: isStoreValid } = storeFormState;
 
     const expertForm = useForm<ExpertValues>({
@@ -118,8 +118,12 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
             isNutritionist: false
         }
     });
-    const { register: registerExpert, handleSubmit: handleSubmitExpert, formState: expertFormState} = expertForm;
+    const { register: registerExpert, handleSubmit: handleSubmitExpert, formState: expertFormState, watch: expertWatch} = expertForm;
     const { errors: expertErrors, isValid: isExpertValid } = expertFormState;
+
+    const storeDescription = storeWatch("description")
+    const expertDescription = expertWatch("description")
+
     const [user, setUser] = useState<User>({id: ""})
     const [newUserName, setNewUserName] = useState("")
     const [showNameForm, setShowNameForm] = useState(false)
@@ -390,43 +394,10 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
             justifyContent="center" 
             alignItems="center" 
             sx={{width: "100vw", maxWidth:"500px", gap:"10px"}}>
-                <Box 
-                sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    maxWidth: "500px",
-                    position: 'fixed',
-                    top: isAppBarVisible?"50px":"0px",
-                    width:"100%",
-                    transition: "top 0.3s",
-                    backgroundColor: 'primary.dark', // Ensure visibility over content
-                    zIndex: 100,
-                    boxShadow: 3,
-                    overflow: "hidden", 
-                    borderBottom: "5px solid",
-                    borderLeft: "5px solid",
-                    borderRight: "5px solid",
-                    borderColor: "secondary.main",
-                    boxSizing: "border-box",
-                    color: "primary.contrastText"
-                  }}
-                >
-                    <Box sx={{display: "flex", flex: 1}}>
-                        <NavigateBack/>
-                    </Box>
-                    <Box sx={{display: "flex", flex: 4}}>
-                        <Typography variant='h6' width="100%"  color="primary.contrastText" sx={{py:1}}>
-                            Mi perfil
-                        </Typography>
-                    </Box>
-                    <Box sx={{display: "flex", flex: 1}}>
-                    </Box>
-                </Box>
+                
             <Box
                 sx={{
-                    marginTop: "60px",
+                    marginTop: isAppBarVisible? "60px":0,
                     border: "5px solid",
                     borderColor: "primary.main",
                     width:"90%",
@@ -475,10 +446,9 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                             width:"50%",
                             
                             }}>
-                            <Typography fontFamily="Montserrat" fontSize={14}>
-                                Cambiar <br /> nombre
-                            </Typography>
-                            
+                                <Typography variant="subtitle2" sx={{color: "primary.contrastText"}}>
+                                    Cambiar <br /> nombre
+                                </Typography>
                         </Button>
                         <Button onClick={()=>setShowPassForm(true)} variant="contained"
                         sx={{
@@ -487,7 +457,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                             
                             }}
                         >
-                           <Typography fontFamily="Montserrat" fontSize={14}>
+                           <Typography variant="subtitle2" sx={{color: "primary.contrastText"}}>
                                 Cambiar <br /> contraseña
                             </Typography>
                         </Button>
@@ -511,7 +481,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                             textIndent: 10
                         }}>
                             <Typography variant='h6' color= "primary.contrastText">
-                            Información de experto
+                            Información profesional
                             </Typography>
                         </Paper>
                         <Paper elevation={0}>
@@ -656,7 +626,8 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                 PaperProps={{
                     sx: {width: "100vw", 
                         maxWidth: "500px", 
-                        margin: 0
+                        margin: 0,
+                        maxHeight: "85vh"
                     }
                 }}
                 >
@@ -826,7 +797,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                 inputProps={{maxLength: 100}}
                                 autoComplete="off"
                                 {...registerPassword("confirmPass", {required: "Repetir contraseña",
-                                                                validate: () => watch("pass")!=watch("confirmPass")?"Contraseñas no coinciden": true
+                                                                validate: () => passWatch("pass")!=passWatch("confirmPass")?"Contraseñas no coinciden": true
                                 })}
                                 error={!!passwordErrors.confirmPass}
                                 helperText = {passwordErrors.confirmPass?.message}
@@ -890,11 +861,14 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                     fullWidth
                                     multiline
                                     rows={4}
-                                    inputProps={{maxLength: 750}}
+                                    inputProps={{maxLength: 150}}
                                     label="Descripción"
                                     {...registerStore("description", {required: "Ingresar descripción"})}
                                     error={!!storeErrors.description}
-                                    helperText={storeErrors.description?.message}
+                                    helperText={
+                                        storeErrors.description?.message ||
+                                        `${storeDescription.length}/${150}`
+                                    }
                                     margin="normal"
                                 />
                                 <TextField
@@ -962,7 +936,11 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                                 <TextField
                                     label="Descripción"
                                     {...registerExpert('description', {required: "Ingresar descripción"})}
-                                    inputProps={{maxLength: 750}}
+                                    inputProps={{maxLength: 400}}
+                                    helperText={
+                                        expertErrors.description?.message ||
+                                        `${expertDescription.length}/${400}`
+                                    }
                                     fullWidth
                                     multiline
                                     rows={4}

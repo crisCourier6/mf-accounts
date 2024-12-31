@@ -31,15 +31,15 @@ type FormValues = {
 }
 
 const RegisterRequest: React.FC = () => {
-    const currentUrl = window.location.href; // "http://example.com/login?u=expert"
+    const currentUrl = window.location.href;
     const url = new URL(currentUrl);
     const queryParams = url.searchParams;
     const userType = queryParams.get('u');
     const navigate = useNavigate()
     // const [file, setFile] = useState(null)
     const form = useForm<FormValues>({
-        mode: "onBlur",
-        reValidateMode: "onBlur",
+        mode: "onChange",
+        reValidateMode: "onChange",
         defaultValues: {
             name: "",
             email: "",
@@ -68,6 +68,8 @@ const RegisterRequest: React.FC = () => {
     const {errors} = formState
 
     const password = watch("pass")
+
+    const description = watch("description")
 
     const passwordRequirements = [
         {
@@ -289,10 +291,13 @@ const RegisterRequest: React.FC = () => {
                 fullWidth
                 rows={5} // Default number of rows
                 maxRows={5} // Maximum number of rows it can expand to
-                {...register("description", {required: "Ingresar descripción breve"})}
+                {...register("description", {required: "Ingresar descripción"})}
                 error={!!errors.description}
-                helperText = {errors.description?.message}
-                inputProps={{ maxLength: 750 }}
+                helperText={
+                    errors.description?.message ||
+                    `${description.length}/${userType==="expert"? 400 : 150}`
+                }
+                inputProps={{ maxLength: userType==="expert"? 400 : 150 }}
             />
 
             <TextField 

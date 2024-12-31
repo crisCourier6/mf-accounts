@@ -137,7 +137,6 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
                 updatedAt: new Date(user.updatedAt),
                 activationExpire: new Date(user.activationExpire),
             }));
-            console.log(transformedUsers)
             if (!userRoles.includes("Admin")){
                 const filteredUsers = transformedUsers.filter((user: User) => {
                     // Check if the user has the "Admin" role
@@ -588,7 +587,6 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
                     isSuspended: newState==="Suspended"?true:false,
                 }));
             }
-            console.log(res.data)
             setSnackbarMsg(newState==="Suspended"?'Cuenta suspendida correctamente':'Cuenta restaurada correctamente');
         })
         .catch (error=>{
@@ -644,7 +642,6 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
             }
         )
         .then(res => {
-            console.log(res);
             onRoleUpdate(res.data); // Call the parent or update function with new roles
             setSnackbarMsg("Roles actualizados");
         })
