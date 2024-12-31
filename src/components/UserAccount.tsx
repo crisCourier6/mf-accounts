@@ -395,7 +395,7 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                 
             <Box
                 sx={{
-                    marginTop: isAppBarVisible? "60px":0,
+                    marginTop: "60px",
                     border: "5px solid",
                     borderColor: "primary.main",
                     width:"90%",
