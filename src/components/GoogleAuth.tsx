@@ -5,17 +5,6 @@ import api from "../api";
 import { googleLogout, useGoogleLogin } from "@react-oauth/google"
 import GoogleIcon from '@mui/icons-material/Google';
 
-type GoogleUser = {
-    name: string
-    email: string
-    profilePic: string
-    isActive: boolean
-    typeExternal: string
-    externalId: string
-    role: string
-}
-
-
 const GoogleAuth: React.FC = () => {
     const navigate = useNavigate()
     const [tokens, setTokens] = useState<any>(null)

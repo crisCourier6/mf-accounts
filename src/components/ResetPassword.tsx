@@ -1,20 +1,12 @@
 import React, {useEffect, useState } from "react";
-import { Button, Box, Alert, Paper, Grid, Dialog, DialogContent, DialogActions, TextField, 
-    Snackbar, SnackbarCloseReason, InputAdornment, IconButton, Typography, DialogTitle, FormControlLabel, Checkbox} from '@mui/material';
+import { Button, Box, Alert, TextField, 
+    Snackbar, SnackbarCloseReason, InputAdornment, IconButton, Typography } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from "../api";
-// import { DevTool } from '@hookform/devtools';
-import { User } from "../interfaces/User";
 import "./Components.css"
 import { useForm } from "react-hook-form";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import FoodPrefsIcon from "../svgs/FoodPrefsIcon";
-import HistoryIcon from "../svgs/HistoryIcon";
-import DiaryIcon from "../svgs/DiaryIcon";
-import FoodEditIcon from "../svgs/FoodEditIcon";
-import StatsIcon from "../svgs/StatsIcon";
-import NotificationManagerIcon from "../svgs/NotificationManagerIcon";
 
 type PasswordValues = {
     pass: string,

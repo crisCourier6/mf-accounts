@@ -9,8 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import api from "../api";
 import { useEffect, useState } from 'react';
 import { DataGrid, GridColDef, GridEventListener, GridFilterModel, GridRenderCellParams, GridToolbarContainer, 
-    GridToolbarExport, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarDensitySelector,  
-    GridComparatorFn} from "@mui/x-data-grid"
+    GridToolbarExport, GridToolbarFilterButton, GridComparatorFn} from "@mui/x-data-grid"
 import { esES } from '@mui/x-data-grid/locales';
 import { useForm } from "react-hook-form";
 import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';

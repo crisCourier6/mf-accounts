@@ -17,11 +17,9 @@ import HistoryIcon from "../svgs/HistoryIcon";
 import DiaryIcon from "../svgs/DiaryIcon";
 import FoodEditIcon from "../svgs/FoodEditIcon";
 import StatsIcon from "../svgs/StatsIcon";
-import NotificationManagerIcon from "../svgs/NotificationManagerIcon";
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import CloseIcon from '@mui/icons-material/Close';
-import NavigateBack from "./NavigateBack";
 
 type PasswordValues = {
     pass: string,
