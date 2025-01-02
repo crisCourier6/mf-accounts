@@ -5,8 +5,6 @@ import { useForm } from "react-hook-form"
 import api from "../api";
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { CheckBox } from "@mui/icons-material";
-// import { DevTool } from '@hookform/devtools';
 
 type FormValues = {
     email: string

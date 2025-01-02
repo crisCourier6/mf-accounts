@@ -12,7 +12,6 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
-// import { DevTool } from '@hookform/devtools';
 
 type FormValues = {
     name: string
@@ -36,7 +35,6 @@ const RegisterRequest: React.FC = () => {
     const queryParams = url.searchParams;
     const userType = queryParams.get('u');
     const navigate = useNavigate()
-    // const [file, setFile] = useState(null)
     const form = useForm<FormValues>({
         mode: "onChange",
         reValidateMode: "onChange",
@@ -57,7 +55,6 @@ const RegisterRequest: React.FC = () => {
         }
     })    
     const [showRegisterSuccess, setShowRegisterSuccess] = useState(false)
-    // const [showPasswordHint, setShowPasswordHint] = useState(false)
     const [showError, setShowError] = useState(false);
     const [errorText, setErrorText] = useState("")
     const [showPass, setShowPass] = useState(false)
@@ -95,17 +92,14 @@ const RegisterRequest: React.FC = () => {
     }, []); // Empty dependency array to ensure it runs only once on mount
 
     const onSubmit = (data: FormValues) => {
-        // console.log(data)
         api.post(registerURL, {
             ...data,
             profilePic: "default_profile.png",
         }, {withCredentials: true})
         .then((res)=>{
             if(res.data.name){
-                //console.log("oh")
                 return handleSuccessDialog()    
-            }
-            // console.log("huh")                    
+            }                 
         })
         .catch((error) => {
             console.log(error.response)
@@ -123,14 +117,6 @@ const RegisterRequest: React.FC = () => {
     const handleSuccessDialog = () => {
         setShowRegisterSuccess(!showRegisterSuccess)
     }
-
-    // const handlePasswordhint = () => {
-    //     setShowPasswordHint(!showPasswordHint)
-    // }
-
-    // const handleFile = (newFile : any) => {
-    //     setFile(newFile)
-    //   }
 
     return  <Grid container 
     display="flex" 

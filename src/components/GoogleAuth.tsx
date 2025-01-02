@@ -14,17 +14,7 @@ const GoogleAuth: React.FC = () => {
     const url = "/auth/login/google"
 
     const login = useGoogleLogin({
-        onSuccess: codeResponse => setGoogleResponse(codeResponse),
-            // try{
-            //     const response = await api.post(tokensURL, {
-            //         code: codeResponse.code
-            //     })
-            //     setTokens(response.data);  
-            // }
-            // catch(error){
-            //     console.log("Error al iniciar sesión con Google")
-            // }
-            
+        onSuccess: codeResponse => setGoogleResponse(codeResponse), 
         onError: (error) => console.log("login failed", error),
         scope: "https://www.googleapis.com/auth/tasks",
         flow: "auth-code"
@@ -56,7 +46,6 @@ const GoogleAuth: React.FC = () => {
             api.post(url, {accessToken: tokens.access_token, userRole: ["Core"]}, 
                         {withCredentials: true})
             .then(res=> {
-                // console.log(res.data)
                 window.localStorage.setItem("id", res.data.id)
                 window.localStorage.setItem("name", res.data.name)
                 window.localStorage.setItem("email", res.data.email)

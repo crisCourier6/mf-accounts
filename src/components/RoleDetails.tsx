@@ -65,7 +65,6 @@ const RoleDetails: React.FC<RoleProfileProps> = ({ role, open, onClose, onUpdate
     };
 
     const handleChangePermissions = () => {
-        // Logic to handle adding permissions (e.g., making a request to the backend)
         api.post(`${rolesURL}/${role.id}/permissions`,
             {
                 roleHasPermissions: selectedPermissions

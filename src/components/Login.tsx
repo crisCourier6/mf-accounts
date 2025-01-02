@@ -6,7 +6,6 @@ import api from "../api";
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CloseIcon from '@mui/icons-material/Close';
-// import { DevTool } from '@hookform/devtools';
 
 type FormValues = {
     email: string
@@ -58,7 +57,6 @@ const Login: React.FC = () => {
             withCredentials: true,
         })
         .then((res)=>{
-            // console.log(res.data)
             if(keepLogin){
                 window.localStorage.setItem("id", res.data.id)
                 window.localStorage.setItem("name", res.data.name)
@@ -249,10 +247,7 @@ const Login: React.FC = () => {
                     {resetLoading ? <CircularProgress size={20} /> : "Enviar"}
                 </Button>
                 </DialogActions>
-            </Dialog>
-        
-        {/* <DevTool control = {control}/> */}
-        
+            </Dialog>  
   </Box>
   </form>
   

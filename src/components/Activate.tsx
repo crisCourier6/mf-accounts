@@ -2,7 +2,6 @@ import React, {useEffect, useState} from "react";
 import { Button, Box, Alert, CircularProgress, Typography} from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from "../api";
-// import { DevTool } from '@hookform/devtools';
 
 
 const Activate: React.FC = () => {
@@ -20,7 +19,6 @@ const Activate: React.FC = () => {
             withCredentials: true,
         })
         .then((res)=>{
-            // console.log(res.data)
             setActiveStatus(res.data.isActive)
                                 
         })
@@ -38,7 +36,6 @@ const Activate: React.FC = () => {
             withCredentials: true,
         })
         .then((res)=>{
-            // console.log(res.data)
             setReset(true)              
         })
         .catch((error) => {

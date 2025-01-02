@@ -7,7 +7,6 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
-// import { DevTool } from '@hookform/devtools';
 
 type FormValues = {
     name: string
@@ -32,7 +31,6 @@ const Register: React.FC = () => {
         }
     })    
     const [showRegisterSuccess, setShowRegisterSuccess] = useState(false)
-    // const [showPasswordHint, setShowPasswordHint] = useState(false)
     const [showError, setShowError] = useState(false);
     const [errorText, setErrorText] = useState("")
     const [showPass, setShowPass] = useState(false)
@@ -64,7 +62,6 @@ const Register: React.FC = () => {
       ];
 
     const onSubmit = (data: FormValues) => {
-        // console.log(data)
         api.post(url, {
             name: data.name,
             email: data.email,
@@ -74,10 +71,8 @@ const Register: React.FC = () => {
         }, {withCredentials: true})
         .then((res)=>{
             if(res.data.name){
-                // console.log("oh")
                 return handleSuccessDialog()    
-            }
-            // console.log("huh")                    
+            }                
         })
         .catch((error) => {
             console.log(error.response)
@@ -99,16 +94,7 @@ const Register: React.FC = () => {
     const handleRequest = (userType: string) => {
         navigate("request?u=" + userType )
     }
-
-    // const handlePasswordhint = () => {
-    //     setShowPasswordHint(!showPasswordHint)
-    // }
-
-    // const handleFile = (newFile : any) => {
-    //     setFile(newFile)
-    //   
-    // }
-
+    
     return  <form onSubmit={handleSubmit(onSubmit)} noValidate encType="multipart/form-data">
         <Box
         sx={{
