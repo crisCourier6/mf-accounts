@@ -37,7 +37,6 @@ const Login: React.FC = () => {
     const [resetError, setResetError] = useState("");
     const [resetSuccess, setResetSuccess] = useState("");
     const [loggingIn, setLoggingIn] = useState(false)
-    const [email, setEmail] = useState("")
     const queryParams = "?r=Core"
 
     useEffect(() => {

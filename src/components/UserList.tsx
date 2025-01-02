@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Box, Alert, Grid, Dialog, DialogContent, DialogActions, TextField, 
     Snackbar, InputAdornment, IconButton, Typography, DialogTitle, Tooltip, FormGroup, FormControlLabel, Checkbox,
     List,
@@ -7,7 +7,6 @@ import { Button, Box, Alert, Grid, Dialog, DialogContent, DialogActions, TextFie
     FormHelperText} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import api from "../api";
-import { useEffect, useState } from 'react';
 import { DataGrid, GridColDef, GridEventListener, GridFilterModel, GridRenderCellParams, GridToolbarContainer, 
     GridToolbarExport, GridToolbarFilterButton, GridComparatorFn} from "@mui/x-data-grid"
 import { esES } from '@mui/x-data-grid/locales';
@@ -90,7 +89,7 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
         }
     })   
 
-    const { register, handleSubmit, formState, control, getValues, watch, reset } = form
+    const { register, handleSubmit, formState, watch, reset } = form
     const {errors, isValid: isFormValid} = formState
     const password = watch("pass")
 
@@ -371,14 +370,6 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
         }
     ]
 
-    const handleRowClick: GridEventListener<'rowClick'> = (
-        params, // GridRowParams
-        event, // MuiEvent<React.MouseEvent<HTMLElement>>
-        details, // GridCallbackDetails
-      ) => {
-        return navigate("/users/" + params.row.id)
-      };
-
       const handleDelete = async (id: string) => {
         
         api.delete(`${usersURL}/${id}`, {
@@ -535,7 +526,7 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
             const updatedUsers:any = users.map((user:any) => 
                 user.id === id ? { 
                     ...user, 
-                    isActive: newState==="Active"?true:false, 
+                    isActive: newState==="Active",
                     isPending: false
                     } : user
             );
@@ -543,7 +534,7 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
             if (selectedUser?.id === id) {
                 setSelectedUser((prevUser:any) => ({
                     ...prevUser,
-                    isActive: newState==="Active"?true:false,
+                    isActive: newState==="Active",
                     isPending: false
                 }));
             }
@@ -556,44 +547,6 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
             setSnackbarOpen(true)
             setShowFlipStateDialog(false)
             setReason("")
-        })
-       
-    };
-
-    const handleSuspendedChange = (id:string, newState: string) => {
-        api.patch(`${usersURL}/${id}`,
-            {
-                isSuspended:newState==="Suspended"?true:false,
-            }, 
-            {
-                withCredentials: true,
-                headers: {
-                    Authorization: "Bearer " + token
-                }
-            }
-        )
-        .then((res)=>{     
-            const updatedUsers:any = users.map((user:any) => 
-                user.id === id ? { 
-                    ...user, 
-                    isSuspended: newState==="Suspended"?true:false,
-                    } : user
-            );
-            setUsers(updatedUsers);
-            if (selectedUser?.id === id) {
-                setSelectedUser((prevUser:any) => ({
-                    ...prevUser,
-                    isSuspended: newState==="Suspended"?true:false,
-                }));
-            }
-            setSnackbarMsg(newState==="Suspended"?'Cuenta suspendida correctamente':'Cuenta restaurada correctamente');
-        })
-        .catch (error=>{
-            console.log(error)
-            setSnackbarMsg(error.response.data.message)
-        })
-        .finally(()=>{
-            setSnackbarOpen(true)
         })
        
     };
@@ -996,7 +949,6 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
                             </DialogContent>
                         )
                         : ( // Page 2: Form with user details
-                            <>
                                 <DialogContent>
                                     <TextField
                                         id="name"
@@ -1073,8 +1025,8 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
                                     />
                                     {password && (
                                     <List>
-                                        {passwordRequirements.map((req, index) => (
-                                        <ListItem key={index} disableGutters>
+                                        {passwordRequirements.map(req => (
+                                        <ListItem key={req.text} disableGutters>
                                             {req.valid ? (
                                             <CheckCircleRoundedIcon color="primary" fontSize="small" sx={{ mr: 1 }} />
                                             ) : (
@@ -1230,7 +1182,6 @@ const UserList: React.FC<{isAppBarVisible:boolean, userRoles:string[]}> = ({ isA
                                         </>
                                     }
                                 </DialogContent>
-                            </>
                         )
                         }
                         <DialogActions>   

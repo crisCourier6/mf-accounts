@@ -32,17 +32,12 @@ const ResetPassword: React.FC = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false)
     const [showNewPass, setShowNewPass] = useState(false)
     const [showRepeatPass, setShowRepeatPass] = useState(false)
-    const [allDone, setAllDone] = useState(false)
     const url = `/auth/resetpass/${id}`
     useEffect(()=>{
         document.title = "Cambiar contraseña - EyesFood";
         console.log(id, activationToken)
     },[])
-
-    const handleClosePassForm = () => {
-        setShowPassForm(false)
-    }
-
+    
     const handleLogin = () => {
         navigate("/login")
       }

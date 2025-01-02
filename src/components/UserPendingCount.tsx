@@ -4,8 +4,8 @@ import { Badge } from '@mui/material';
 import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
 
 const UserPendingCount: React.FC<{height?: string, width?:string}> = ({height="100%", width="100%"}) => {
-    const token = window.sessionStorage.getItem("token") || window.localStorage.getItem("token")
-    const currentUserId = window.sessionStorage.getItem("id") || window.localStorage.getItem("id")
+    const token = window.sessionStorage.getItem("token") ?? window.localStorage.getItem("token")
+    const currentUserId = window.sessionStorage.getItem("id") ?? window.localStorage.getItem("id")
     const [pendingCount, setPendingCount] = useState(0)
     const userCountURL = "/users"
     const queryParams = "?pending=true&count=true"

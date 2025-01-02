@@ -6,7 +6,6 @@ import { Button, Box, Alert, Paper, Grid, Dialog, DialogContent, DialogActions, 
     ListItemText} from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from "../api";
-// import { DevTool } from '@hookform/devtools';
 import { User } from "../interfaces/User";
 import "./Components.css"
 import { useForm } from "react-hook-form";
@@ -53,9 +52,9 @@ type Option = {
 const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ isAppBarVisible, onReady }) => {
     const navigate = useNavigate()
     const { id } = useParams()
-    const token = window.sessionStorage.getItem("token") || window.localStorage.getItem("token")
-    const s_id = window.sessionStorage.getItem("s_id") || window.localStorage.getItem("s_id")
-    const e_id = window.sessionStorage.getItem("e_id") || window.localStorage.getItem("e_id")
+    const token = window.sessionStorage.getItem("token") ?? window.localStorage.getItem("token")
+    const s_id = window.sessionStorage.getItem("s_id") ?? window.localStorage.getItem("s_id")
+    const e_id = window.sessionStorage.getItem("e_id") ?? window.localStorage.getItem("e_id")
     const passwordForm = useForm<PasswordValues>({
         mode: "onChange",
         reValidateMode: "onChange",
@@ -209,10 +208,6 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
         navigate("food-diary")
     }
 
-    const handleNotif = () => {
-        navigate("notifications")
-      }
-
     const handleFoodEdits = () => {
         navigate("food-edits")
     }
@@ -233,7 +228,6 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                     {name: "Diario alimenticio", function: handleFoodDiary, icon: <DiaryIcon width={"100%"} height={"auto"}/>},
                     {name: "Mis aportes", function: handleFoodEdits, icon: <FoodEditIcon width={"100%"} height={"auto"}/>},
                     {name: "Mis medidas", function: handleStats, icon: <StatsIcon width='100%' height= 'auto'/>},
-                    //{name: "Notificaciones", function: handleNotif, icon: <NotificationManagerIcon width='100%' height= 'auto'/>},
                 ]
             )
         }
@@ -258,7 +252,6 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                     {name: "Diario alimenticio", function: handleFoodDiary, icon: <DiaryIcon width={"100%"} height={"auto"}/>},
                     {name: "Mis aportes", function: handleFoodEdits, icon: <FoodEditIcon width={"100%"} height={"auto"}/>},
                     {name: "Mis medidas", function: handleStats, icon: <StatsIcon width='100%' height= 'auto'/>},
-                    //{name: "Notificaciones", function: handleNotif, icon: <NotificationManagerIcon width='100%' height= 'auto'/>},
                 ]
             )
         }
@@ -762,8 +755,8 @@ const UserAccount: React.FC<{isAppBarVisible:boolean, onReady:()=>void}> = ({ is
                             </TextField>
                             {password && (
                             <List>
-                                {passwordRequirements.map((req, index) => (
-                                <ListItem key={index} disableGutters>
+                                {passwordRequirements.map(req => (
+                                <ListItem key={req.text} disableGutters>
                                     {req.valid ? (
                                     <CheckCircleRoundedIcon color="primary" fontSize="small" sx={{ mr: 1 }} />
                                     ) : (

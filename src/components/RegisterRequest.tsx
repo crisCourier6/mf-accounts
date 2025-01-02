@@ -205,8 +205,8 @@ const RegisterRequest: React.FC = () => {
 
 {password && (
                 <List>
-                    {passwordRequirements.map((req, index) => (
-                    <ListItem key={index} disableGutters>
+                    {passwordRequirements.map(req => (
+                    <ListItem key={req.text} disableGutters>
                         {req.valid ? (
                         <CheckCircleRoundedIcon color="primary" fontSize="small" sx={{ mr: 1 }} />
                         ) : (

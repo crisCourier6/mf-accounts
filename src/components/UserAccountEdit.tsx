@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Box, Paper, Grid, Typography} from '@mui/material';
-// import { DevTool } from '@hookform/devtools';
 import "./Components.css"
 import { User } from "../interfaces/User";
 
